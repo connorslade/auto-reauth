@@ -6,9 +6,6 @@ import net.minecraft.client.MinecraftClient;
 import org.slf4j.Logger;
 
 public class AutoReauth implements ClientModInitializer {
-    // My client ID: de4f1d47-957d-49bf-a282-0da6cdaf8c54
-    public static final String CLIENT_ID = "e16699bb-2aa8-46da-b5e3-45cbcce29091";
-
     public static Logger log = LogUtils.getLogger();
     public static MinecraftClient client = MinecraftClient.getInstance();
 
