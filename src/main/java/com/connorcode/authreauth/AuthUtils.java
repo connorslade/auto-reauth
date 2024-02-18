@@ -2,6 +2,13 @@ package com.connorcode.authreauth;
 
 import com.mojang.authlib.exceptions.AuthenticationException;
 import com.mojang.authlib.yggdrasil.YggdrasilMinecraftSessionService;
+import net.minecraft.client.network.SocialInteractionsManager;
+import net.minecraft.client.realms.RealmsAvailability;
+import net.minecraft.client.realms.RealmsClient;
+import net.minecraft.client.realms.RealmsPeriodicCheckers;
+import net.minecraft.client.session.ProfileKeys;
+import net.minecraft.client.session.Session;
+import net.minecraft.client.session.report.AbuseReportContext;
 
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -14,7 +21,8 @@ public class AuthUtils {
     private static AuthStatus authStatus = AuthStatus.Unknown;
 
     public static CompletableFuture<AuthStatus> getAuthStatus() {
-        if (System.currentTimeMillis() - lastAuthStatusCheck <= 1000 * 60 * 5) return CompletableFuture.completedFuture(authStatus);
+//        if (System.currentTimeMillis() - lastAuthStatusCheck <= 1000 * 60 * 5 && authStatus != AuthStatus.Unknown)
+//            return CompletableFuture.completedFuture(authStatus);
 
         log.info("Checking auth status");
         lastAuthStatusCheck = System.currentTimeMillis();
@@ -40,6 +48,21 @@ public class AuthUtils {
         });
     }
 
+    public static void setSession(Session session) throws AuthenticationException {
+        log.info("Overwriting session with {} ({})", session.getUsername(), session.getUuidOrNull());
+        client.session = session;
+        client.splashTextLoader.session = session;
+        client.userApiService = client.authenticationService.createUserApiService(session.getAccessToken());
+        client.socialInteractionsManager = new SocialInteractionsManager(client, client.userApiService);
+        client.profileKeys = ProfileKeys.create(client.userApiService, session, client.runDirectory.toPath());
+        client.abuseReportContext = AbuseReportContext.create(client.abuseReportContext.environment, client.userApiService);
+        client.realmsPeriodicCheckers = new RealmsPeriodicCheckers(RealmsClient.create());
+        RealmsAvailability.currentFuture = null;
+
+        authStatus = AuthStatus.Unknown;
+        lastAuthStatusCheck = 0;
+    }
+
     public enum AuthStatus {
         Unknown,
         Invalid,
@@ -53,6 +76,10 @@ public class AuthUtils {
                 case Online -> "Online";
                 case Offline -> "Offline";
             };
+        }
+
+        public boolean isInvalid() {
+            return this != Unknown && this != Online;
         }
     }
 }

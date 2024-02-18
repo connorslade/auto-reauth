@@ -18,6 +18,7 @@
   "mixins": [
     "auto-reauth.mixins.json"
   ],
+  "accessWidener": "auto-reauth.accesswidener",
   "depends": {
     "fabricloader": ">=${loader_version}",
     "fabric": "*",

@@ -1,0 +1,11 @@
+package com.connorcode.authreauth;
+
+import java.util.UUID;
+
+public class Config {
+    String username = "Sigma76";
+    UUID uuid = UUID.fromString("3c358264-b456-4bde-ab1e-fe1023db6679");
+    String accessToken = "eyJraWQiOiJhYzg0YSIsImFsZyI6IkhTMjU2In0.eyJ4dWlkIjoiMjUzNTQwODU2ODg4NzE3NiIsImFnZyI6IkFkdWx0Iiwic3ViIjoiNDgzMzMzZTQtOTFkZS00NDFjLTlmMjAtMjVlOTViYjI0Y2UyIiwiYXV0aCI6IlhCT1giLCJucyI6ImRlZmF1bHQiLCJyb2xlcyI6W10sImlzcyI6ImF1dGhlbnRpY2F0aW9uIiwiZmxhZ3MiOlsidHdvZmFjdG9yYXV0aCIsIm1zYW1pZ3JhdGlvbl9zdGFnZTQiLCJvcmRlcnNfMjAyMiIsIm11bHRpcGxheWVyIl0sInByb2ZpbGVzIjp7Im1jIjoiM2MzNTgyNjQtYjQ1Ni00YmRlLWFiMWUtZmUxMDIzZGI2Njc5In0sInBsYXRmb3JtIjoiVU5LTk9XTiIsInl1aWQiOiI4YjkzZGJlMzE0OTg3NzQzMDRmNzhiMGMwNTBlODhmNCIsIm5iZiI6MTcwODI4MzM4OSwiZXhwIjoxNzA4MzY5Nzg5LCJpYXQiOjE3MDgyODMzODl9.8KEBdFH-kL1_GN8TJDDN_8Qg7qco3ASfyZNX10BhL4I";
+    String xuid;
+    String clientId;
+}
