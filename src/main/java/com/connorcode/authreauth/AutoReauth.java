@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 
 public class AutoReauth implements ClientModInitializer {
     public static Logger log = LogUtils.getLogger();
-    public static MinecraftClient mc = MinecraftClient.getInstance();
+    public static MinecraftClient client = MinecraftClient.getInstance();
 
     @Override
     public void onInitializeClient() {
