@@ -63,10 +63,9 @@ public class MicrosoftAuth {
         return json.get(key);
     }
 
-    public static CompletableFuture<String> getCode() {
+    public static CompletableFuture<String> getCode(Semaphore semaphore) {
         return CompletableFuture.supplyAsync(() -> {
             var state = Misc.randomString(10);
-            var semaphore = new Semaphore(0);
 
             HttpServer server;
             AtomicReference<String> finalCode = new AtomicReference<>("");

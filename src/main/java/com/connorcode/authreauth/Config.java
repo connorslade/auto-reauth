@@ -7,7 +7,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
 
-import static com.connorcode.authreauth.AutoReauth.config;
 import static com.connorcode.authreauth.AutoReauth.directory;
 
 public class Config {

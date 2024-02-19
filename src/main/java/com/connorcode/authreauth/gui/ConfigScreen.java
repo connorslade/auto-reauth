@@ -3,6 +3,7 @@ package com.connorcode.authreauth.gui;
 import com.connorcode.authreauth.AutoReauth;
 import com.connorcode.authreauth.Config;
 import com.connorcode.authreauth.MicrosoftAuth;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -14,13 +15,15 @@ import net.minecraft.util.Formatting;
 
 import java.util.ArrayList;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Semaphore;
 
 import static com.connorcode.authreauth.AutoReauth.config;
+import static com.connorcode.authreauth.AutoReauth.log;
 
 public class ConfigScreen extends Screen {
     private final GridWidget grid = new GridWidget().setColumnSpacing(10);
     Screen parent;
+    Semaphore semaphore = new Semaphore(0);
 
     public ConfigScreen(Screen screen) {
         super(Text.of("AutoReauth Config"));
@@ -36,17 +39,15 @@ public class ConfigScreen extends Screen {
             config.ifPresent(Config::save);
             AutoReauth.client.setScreen(this.parent);
         }).build(), positioner);
-        adder.add(ButtonWidget.builder(Text.of(config.isPresent() ? "Login Again" : "Login"), (button) -> {
-            try {
-                var code = MicrosoftAuth.getCode().get();
-                var access = new MicrosoftAuth().getAccessToken(code).get();
-                var newConfig = Config.of(access);
-                newConfig.save();
-                config = Optional.of(newConfig);
-            } catch (InterruptedException | ExecutionException e) {
-                AutoReauth.client.setScreen(new ErrorScreen("Error re-authenticating", e.toString()));
-            }
-        }).build(), positioner);
+        adder.add(ButtonWidget.builder(Text.of(config.isPresent() ? "Login Again" : "Login"), (button) -> MicrosoftAuth.getCode(semaphore).thenCompose(code -> new MicrosoftAuth().getAccessToken(code)).thenAccept(access -> {
+            var newConfig = Config.of(access);
+            newConfig.save();
+            config = Optional.of(newConfig);
+        }).exceptionally(e -> {
+            log.error("Error re-authenticating", e);
+            RenderSystem.recordRenderCall(() -> AutoReauth.client.setScreen(new ErrorScreen("Error re-authenticating", e.toString())));
+            return null;
+        })).build(), positioner);
 
         this.grid.forEachChild(this::addDrawableChild);
         this.grid.refreshPositions();
@@ -55,6 +56,7 @@ public class ConfigScreen extends Screen {
 
     @Override
     public void close() {
+        semaphore.release();
         AutoReauth.client.setScreen(this.parent);
     }
 
