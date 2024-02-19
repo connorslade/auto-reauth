@@ -46,5 +46,10 @@
       <option name="name" value="ModMenu" />
       <option name="url" value="https://maven.terraformersmc.com" />
     </remote-repository>
+    <remote-repository>
+      <option name="id" value="meteor-maven" />
+      <option name="name" value="meteor-maven" />
+      <option name="url" value="https://maven.meteordev.org/releases" />
+    </remote-repository>
   </component>
 </project>

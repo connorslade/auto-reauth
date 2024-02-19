@@ -7,7 +7,10 @@ import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.client.session.Session;
 import net.minecraft.command.CommandRegistryAccess;
+import net.minecraft.network.packet.s2c.common.DisconnectS2CPacket;
 import net.minecraft.text.Text;
+
+import java.util.Objects;
 
 import static com.connorcode.autoreauth.AutoReauth.client;
 import static com.connorcode.autoreauth.AutoReauth.config;
@@ -21,9 +24,12 @@ public class Commands {
                     try {
                         AuthUtils.setSession(newSession);
                     } catch (AuthenticationException e) {
-                        throw new RuntimeException(e);
+                        // ignored
                     }
                     context.getSource().sendFeedback(Text.of("Session invalidated"));
+                    return 1;
+                })).then(ClientCommandManager.literal("kick").executes(context -> {
+                    Objects.requireNonNull(client.player).networkHandler.onDisconnect(new DisconnectS2CPacket(Text.translatable("disconnect.kicked")));
                     return 1;
                 })));
     }

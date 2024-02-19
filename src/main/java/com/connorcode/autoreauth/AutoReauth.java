@@ -1,12 +1,15 @@
 package com.connorcode.autoreauth;
 
+import com.connorcode.autoreauth.auth.AuthUtils;
 import com.mojang.logging.LogUtils;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.minecraft.client.MinecraftClient;
 import org.slf4j.Logger;
+import org.spongepowered.asm.mixin.Unique;
 
 import java.nio.file.Path;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Semaphore;
 
 public class AutoReauth implements ClientModInitializer {
@@ -16,6 +19,9 @@ public class AutoReauth implements ClientModInitializer {
 
     public static Config config = new Config();
     public static Semaphore serverJoin = new Semaphore(1);
+    public static CompletableFuture<AuthUtils.AuthStatus> authStatus;
+    public static long lastUpdate = System.currentTimeMillis();
+    public static boolean sentToast = false;
 
 
     @Override

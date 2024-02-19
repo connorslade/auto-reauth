@@ -21,8 +21,7 @@ import net.minecraft.screen.ScreenTexts;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
-import static com.connorcode.autoreauth.AutoReauth.client;
-import static com.connorcode.autoreauth.AutoReauth.log;
+import static com.connorcode.autoreauth.AutoReauth.*;
 
 public class AuthUtils {
 
@@ -38,6 +37,7 @@ public class AuthUtils {
             try {
                 sessionService.joinServer(client.getSession().getUuidOrNull(), token, id);
                 var authStatus = sessionService.hasJoinedServer(session.getUsername(), id, null) != null ? AuthStatus.Online : AuthStatus.Offline;
+                if (authStatus.isOnline()) sentToast = false;
                 log.info("Auth status: " + authStatus.getText());
                 return authStatus;
             } catch (AuthenticationException e) {
@@ -83,6 +83,10 @@ public class AuthUtils {
 
         public boolean isInvalid() {
             return this != Unknown && this != Online;
+        }
+
+        public boolean isOnline() {
+            return this == Online;
         }
     }
 }
