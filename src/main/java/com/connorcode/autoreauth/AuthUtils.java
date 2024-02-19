@@ -70,10 +70,7 @@ public class AuthUtils {
     }
 
     public enum AuthStatus {
-        Unknown,
-        Invalid,
-        Online,
-        Offline;
+        Unknown, Invalid, Online, Offline;
 
         public String getText() {
             return switch (this) {

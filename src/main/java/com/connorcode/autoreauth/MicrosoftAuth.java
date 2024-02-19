@@ -71,11 +71,13 @@ public class MicrosoftAuth {
                 server = HttpServer.create(new InetSocketAddress(PORT), 0);
                 server.createContext("/callback", ctx -> {
                     var params = URLEncodedUtils.parse(ctx.getRequestURI(), StandardCharsets.UTF_8);
-                    var map = params.stream().collect(Collectors.toMap(NameValuePair::getName, NameValuePair::getValue));
+                    var map = params.stream()
+                            .collect(Collectors.toMap(NameValuePair::getName, NameValuePair::getValue));
 
                     if (!map.containsKey("code") || !map.containsKey("state")) {
                         ctx.sendResponseHeaders(400, 0);
-                        ctx.getResponseBody().write("Invalid request!\nYou need the code and state parameters.".getBytes());
+                        ctx.getResponseBody()
+                                .write("Invalid request!\nYou need the code and state parameters.".getBytes());
                         ctx.close();
                         return;
                     }
@@ -129,19 +131,14 @@ public class MicrosoftAuth {
     }
 
     public CompletableFuture<Session> authenticate(String code) {
-        return getAccessToken(code)
-                .thenCompose(this::authenticateXbox)
-                .thenCompose(this::obtainXstsToken)
-                .thenCompose(this::authenticateMinecraft)
-                .thenCompose(this::createSession);
+        return getAccessToken(code).thenCompose(this::authenticateXbox).thenCompose(this::obtainXstsToken)
+                .thenCompose(this::authenticateMinecraft).thenCompose(this::createSession);
     }
 
     public CompletableFuture<Session> authenticate(AccessToken token) {
         // TODO: Use access token if its still valid
-        return refreshAccessToken(token.refreshToken)
-                .thenCompose(this::authenticateXbox)
-                .thenCompose(this::obtainXstsToken)
-                .thenCompose(this::authenticateMinecraft)
+        return refreshAccessToken(token.refreshToken).thenCompose(this::authenticateXbox)
+                .thenCompose(this::obtainXstsToken).thenCompose(this::authenticateMinecraft)
                 .thenCompose(this::createSession);
     }
 
@@ -152,12 +149,7 @@ public class MicrosoftAuth {
                 var client = HttpClients.createMinimal();
                 var req = new HttpPost(ACCESS_TOKEN_URI);
                 req.setHeader("Content-Type", "application/x-www-form-urlencoded");
-                req.setEntity(new UrlEncodedFormEntity(
-                        List.of(new BasicNameValuePair("client_id", CLIENT_ID),
-                                new BasicNameValuePair("code", code),
-                                new BasicNameValuePair("redirect_uri", REDIRECT_URI),
-                                new BasicNameValuePair("grant_type", "authorization_code"))
-                ));
+                req.setEntity(new UrlEncodedFormEntity(List.of(new BasicNameValuePair("client_id", CLIENT_ID), new BasicNameValuePair("code", code), new BasicNameValuePair("redirect_uri", REDIRECT_URI), new BasicNameValuePair("grant_type", "authorization_code"))));
 
                 var result = client.execute(req);
                 var str = EntityUtils.toString(result.getEntity());
@@ -180,11 +172,7 @@ public class MicrosoftAuth {
                 var client = HttpClients.createMinimal();
                 var req = new HttpPost(ACCESS_TOKEN_URI);
                 req.setHeader("Content-Type", "application/x-www-form-urlencoded");
-                req.setEntity(new UrlEncodedFormEntity(
-                        List.of(new BasicNameValuePair("client_id", CLIENT_ID),
-                                new BasicNameValuePair("refresh_token", refreshToken),
-                                new BasicNameValuePair("grant_type", "refresh_token"))
-                ));
+                req.setEntity(new UrlEncodedFormEntity(List.of(new BasicNameValuePair("client_id", CLIENT_ID), new BasicNameValuePair("refresh_token", refreshToken), new BasicNameValuePair("grant_type", "refresh_token"))));
 
                 var result = client.execute(req);
                 var str = EntityUtils.toString(result.getEntity());
@@ -225,7 +213,8 @@ public class MicrosoftAuth {
 
                 var ctx = "xbox auth response";
                 var xbl_token = getIfPresent(json, "Token", ctx).getAsString();
-                var user_hash = getIfPresent(json, "DisplayClaims", ctx).getAsJsonObject().get("xui").getAsJsonArray().get(0).getAsJsonObject().get("uhs").getAsString();
+                var user_hash = getIfPresent(json, "DisplayClaims", ctx).getAsJsonObject().get("xui").getAsJsonArray()
+                        .get(0).getAsJsonObject().get("uhs").getAsString();
                 return new XboxAuth(xbl_token, user_hash);
             } catch (IOException e) {
                 throw new AuthException("Failed to authenticate Xbox", e);
@@ -309,14 +298,7 @@ public class MicrosoftAuth {
                 var id = getIfPresent(json, "id", ctx).getAsString();
                 var name = getIfPresent(json, "name", ctx).getAsString();
 
-                return new Session(
-                        name,
-                        Misc.parseUUID(id),
-                        minecraftAuth.accessToken,
-                        Optional.empty(),
-                        Optional.empty(),
-                        Session.AccountType.MSA
-                );
+                return new Session(name, Misc.parseUUID(id), minecraftAuth.accessToken, Optional.empty(), Optional.empty(), Session.AccountType.MSA);
             } catch (IOException e) {
                 throw new AuthException("Failed to create session", e);
             }
@@ -328,8 +310,7 @@ public class MicrosoftAuth {
     }
 
     static class AuthException extends CancellationException {
-        @Nullable
-        Throwable cause;
+        @Nullable Throwable cause;
 
         public AuthException(String message, @Nullable Throwable cause) {
             super(message);

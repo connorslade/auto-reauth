@@ -39,15 +39,16 @@ public class ConfigScreen extends Screen {
             config.ifPresent(Config::save);
             AutoReauth.client.setScreen(this.parent);
         }).build(), positioner);
-        adder.add(ButtonWidget.builder(Text.of(config.isPresent() ? "Login Again" : "Login"), (button) -> MicrosoftAuth.getCode(semaphore).thenCompose(code -> new MicrosoftAuth().getAccessToken(code)).thenAccept(access -> {
-            var newConfig = Config.of(access);
-            newConfig.save();
-            config = Optional.of(newConfig);
-        }).exceptionally(e -> {
-            log.error("Error re-authenticating", e);
-            RenderSystem.recordRenderCall(() -> AutoReauth.client.setScreen(new ErrorScreen("Error re-authenticating", e.toString())));
-            return null;
-        })).build(), positioner);
+        adder.add(ButtonWidget.builder(Text.of(config.isPresent() ? "Login Again" : "Login"), (button) -> MicrosoftAuth.getCode(semaphore)
+                .thenCompose(code -> new MicrosoftAuth().getAccessToken(code)).thenAccept(access -> {
+                    var newConfig = Config.of(access);
+                    newConfig.save();
+                    config = Optional.of(newConfig);
+                }).exceptionally(e -> {
+                    log.error("Error re-authenticating", e);
+                    RenderSystem.recordRenderCall(() -> AutoReauth.client.setScreen(new ErrorScreen("Error re-authenticating", e.toString())));
+                    return null;
+                })).build(), positioner);
 
         this.grid.forEachChild(this::addDrawableChild);
         this.grid.refreshPositions();
@@ -71,10 +72,13 @@ public class ConfigScreen extends Screen {
         context.drawCenteredTextWithShadow(txt, title, this.width / 2, 20, 0xFFFFFF);
 
         var textLines = new ArrayList<Text>();
-        textLines.add(Text.literal("Config: ").append(Text.literal(AutoReauth.config.isPresent() ? "Present" : "Not present").fillStyle(Style.EMPTY.withColor(AutoReauth.config.isPresent() ? 0x00FF00 : 0xFF0000))));
+        textLines.add(Text.literal("Config: ")
+                .append(Text.literal(AutoReauth.config.isPresent() ? "Present" : "Not present")
+                        .fillStyle(Style.EMPTY.withColor(AutoReauth.config.isPresent() ? 0x00FF00 : 0xFF0000))));
         if (AutoReauth.config.isEmpty())
             textLines.add(Text.literal("Because config is not present, you will need to login."));
-        textLines.add(Text.literal("Warning: Tokens are stored in your config folder.").fillStyle(Style.EMPTY.withColor(Formatting.GOLD)));
+        textLines.add(Text.literal("Warning: Tokens are stored in your config folder.")
+                .fillStyle(Style.EMPTY.withColor(Formatting.GOLD)));
 
         var maxWidth = textLines.stream().mapToInt(txt::getWidth).max().orElse(0);
         for (var line : textLines) {

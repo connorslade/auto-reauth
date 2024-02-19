@@ -17,8 +17,7 @@ import static com.connorcode.autoreauth.AutoReauth.serverJoin;
 public class ConnectScreenMixin {
     @Inject(at = @At("HEAD"), method = "connect(Lnet/minecraft/client/gui/screen/Screen;Lnet/minecraft/client/MinecraftClient;Lnet/minecraft/client/network/ServerAddress;Lnet/minecraft/client/network/ServerInfo;Z)V", cancellable = true)
     private static void onConnect(Screen screen, MinecraftClient client, ServerAddress address, ServerInfo info, boolean quickPlay, CallbackInfo ci) {
-        if (!serverJoin.tryAcquire())
-            client.setScreen(new WaitingScreen(address, info, quickPlay));
+        if (!serverJoin.tryAcquire()) client.setScreen(new WaitingScreen(address, info, quickPlay));
         ci.cancel();
     }
 }

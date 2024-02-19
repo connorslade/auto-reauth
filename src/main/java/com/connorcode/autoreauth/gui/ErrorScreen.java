@@ -23,10 +23,8 @@ public class ErrorScreen extends Screen {
     @Override
     protected void init() {
         addDrawableChild(ButtonWidget.builder(Text.of("Back"), (button) -> {
-                    AutoReauth.client.setScreen(parent);
-                }).size(200, 20)
-                .position(this.width / 2 - 100, this.height - 30)
-                .build());
+            AutoReauth.client.setScreen(parent);
+        }).size(200, 20).position(this.width / 2 - 100, this.height - 30).build());
     }
 
     @Override
