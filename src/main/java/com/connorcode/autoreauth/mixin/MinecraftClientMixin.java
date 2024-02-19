@@ -10,17 +10,17 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import static com.connorcode.autoreauth.AutoReauth.log;
 import static com.connorcode.autoreauth.Common.tickAuthStatus;
 
 @Mixin(MinecraftClient.class)
 public class MinecraftClientMixin {
-    @Shadow @Nullable public Screen currentScreen;
+    @Shadow
+    @Nullable
+    public Screen currentScreen;
 
     @Inject(at = @At("HEAD"), method = "tick")
     void onTick(CallbackInfo ci) {
         // So janky sob but it's needed for meteor client compat
-        if (this.currentScreen instanceof DisconnectedScreen)
-            tickAuthStatus(this.currentScreen);
+        if (this.currentScreen instanceof DisconnectedScreen) tickAuthStatus(this.currentScreen);
     }
 }

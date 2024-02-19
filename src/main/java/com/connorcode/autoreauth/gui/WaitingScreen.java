@@ -10,7 +10,7 @@ import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 
 import static com.connorcode.autoreauth.AutoReauth.authStatus;
-import static com.connorcode.autoreauth.AutoReauth.serverJoin;
+import static com.connorcode.autoreauth.Common.tickAuthStatus;
 
 public class WaitingScreen extends Screen {
     Screen parent;
@@ -29,10 +29,9 @@ public class WaitingScreen extends Screen {
 
     @Override
     public void tick() {
-        if (!authStatus.isDone()) return;
-        if (!serverJoin.tryAcquire()) return;
-        serverJoin.release();
-        AuthUtils.connectToServer(address, info, quickPlay);
+        if (authStatus.getNow(AuthUtils.AuthStatus.Invalid).isOnline())
+            AuthUtils.connectToServer(address, info, quickPlay);
+        else tickAuthStatus(parent);
     }
 
     @Override

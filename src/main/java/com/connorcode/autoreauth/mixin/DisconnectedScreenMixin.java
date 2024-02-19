@@ -9,7 +9,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import static com.connorcode.autoreauth.Common.*;
+import static com.connorcode.autoreauth.Common.refreshAuthStatus;
+import static com.connorcode.autoreauth.Common.renderAuthStatus;
 
 @Mixin(DisconnectedScreen.class)
 public class DisconnectedScreenMixin extends Screen {
@@ -18,7 +19,7 @@ public class DisconnectedScreenMixin extends Screen {
         throw new UnsupportedOperationException("Mixin constructor");
     }
 
-    @Inject(at = @At("TAIL"), method = "init")
+    @Inject(at = @At("TAIL"), method = "<init>(Lnet/minecraft/client/gui/screen/Screen;Lnet/minecraft/text/Text;Lnet/minecraft/text/Text;Lnet/minecraft/text/Text;)V")
     void onInit(CallbackInfo ci) {
         refreshAuthStatus();
     }
