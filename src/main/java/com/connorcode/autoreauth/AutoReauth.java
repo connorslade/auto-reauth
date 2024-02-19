@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 
 import java.nio.file.Path;
 import java.util.Optional;
+import java.util.concurrent.Semaphore;
 
 public class AutoReauth implements ClientModInitializer {
     public static Logger log = LogUtils.getLogger();
@@ -14,6 +15,7 @@ public class AutoReauth implements ClientModInitializer {
     public static final Path directory = client.runDirectory.toPath().resolve("config/auto-reauth");
 
     public static Optional<Config> config = Optional.empty();
+    public static Semaphore serverJoin = new Semaphore(1);
 
 
     @Override

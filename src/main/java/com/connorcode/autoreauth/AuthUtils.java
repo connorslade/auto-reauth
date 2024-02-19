@@ -2,6 +2,12 @@ package com.connorcode.autoreauth;
 
 import com.mojang.authlib.exceptions.AuthenticationException;
 import com.mojang.authlib.yggdrasil.YggdrasilMinecraftSessionService;
+import net.minecraft.client.QuickPlay;
+import net.minecraft.client.QuickPlayLogger;
+import net.minecraft.client.gui.screen.ConnectScreen;
+import net.minecraft.client.gui.screen.TitleScreen;
+import net.minecraft.client.network.ServerAddress;
+import net.minecraft.client.network.ServerInfo;
 import net.minecraft.client.network.SocialInteractionsManager;
 import net.minecraft.client.realms.RealmsAvailability;
 import net.minecraft.client.realms.RealmsClient;
@@ -9,6 +15,8 @@ import net.minecraft.client.realms.RealmsPeriodicCheckers;
 import net.minecraft.client.session.ProfileKeys;
 import net.minecraft.client.session.Session;
 import net.minecraft.client.session.report.AbuseReportContext;
+import net.minecraft.client.session.report.ReporterEnvironment;
+import net.minecraft.screen.ScreenTexts;
 
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -33,7 +41,7 @@ public class AuthUtils {
                 log.info("Auth status: " + authStatus.getText());
                 return authStatus;
             } catch (AuthenticationException e) {
-                log.error("Invalid auth status", e);
+                log.info("Invalid auth status");
                 return AuthStatus.Invalid;
             }
         });
@@ -49,6 +57,16 @@ public class AuthUtils {
         client.abuseReportContext = AbuseReportContext.create(client.abuseReportContext.environment, client.userApiService);
         client.realmsPeriodicCheckers = new RealmsPeriodicCheckers(RealmsClient.create());
         RealmsAvailability.currentFuture = null;
+    }
+
+    public static void connectToServer(ServerAddress address, ServerInfo info, boolean quickPlay) {
+        var connectScreen = new ConnectScreen(new TitleScreen(), quickPlay ? QuickPlay.ERROR_TITLE : ScreenTexts.CONNECT_FAILED);
+        client.disconnect();
+        client.loadBlockList();
+        client.ensureAbuseReportContext(ReporterEnvironment.ofThirdPartyServer(info != null ? info.address : address.getAddress()));
+        client.getQuickPlayLogger().setWorld(QuickPlayLogger.WorldType.MULTIPLAYER, info.address, info.name);
+        client.setScreen(connectScreen);
+        connectScreen.connect(client, address, info);
     }
 
     public enum AuthStatus {

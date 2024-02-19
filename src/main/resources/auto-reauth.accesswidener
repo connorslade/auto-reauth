@@ -22,3 +22,7 @@ mutable field net/minecraft/client/MinecraftClient abuseReportContext Lnet/minec
 mutable field net/minecraft/client/MinecraftClient realmsPeriodicCheckers Lnet/minecraft/client/realms/RealmsPeriodicCheckers;
 mutable field net/minecraft/client/MinecraftClient userApiService Lcom/mojang/authlib/minecraft/UserApiService;
 mutable field net/minecraft/client/realms/RealmsAvailability currentFuture Ljava/util/concurrent/CompletableFuture;
+
+## AuthUtils::connectToServer ##
+accessible method net/minecraft/client/gui/screen/ConnectScreen <init> (Lnet/minecraft/client/gui/screen/Screen;Lnet/minecraft/text/Text;)V
+accessible method net/minecraft/client/gui/screen/ConnectScreen connect (Lnet/minecraft/client/MinecraftClient;Lnet/minecraft/client/network/ServerAddress;Lnet/minecraft/client/network/ServerInfo;)V

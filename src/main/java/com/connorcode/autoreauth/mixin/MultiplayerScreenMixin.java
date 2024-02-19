@@ -59,10 +59,15 @@ public class MultiplayerScreenMixin {
         var status = this.authStatus.getNow(AuthUtils.AuthStatus.Unknown);
         if (status.isInvalid() && !sentToast) {
             sentToast = true;
-
             if (config.isEmpty()) {
                 Misc.sendToast("AuthReauth", "Session expired but no login info found");
                 return;
+            }
+
+            try {
+                serverJoin.acquire();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
 
             Misc.sendToast("AuthReauth", "Session expired, reauthenticating...");
@@ -72,9 +77,11 @@ public class MultiplayerScreenMixin {
                 } catch (AuthenticationException e) {
                     log.error("Error re-authenticating", e);
                 }
+                serverJoin.release();
                 this.authStatus = AuthUtils.getAuthStatus();
                 Misc.sendToast("AuthReauth", String.format("Authenticated as %s!", session.getUsername()));
             }).exceptionally(e -> {
+                serverJoin.release();
                 log.error("Error re-authenticating", e);
                 RenderSystem.recordRenderCall(() -> client.setScreen(new ErrorScreen("Error re-authenticating", e.toString())));
                 return null;
