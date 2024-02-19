@@ -31,7 +31,8 @@ public class WaitingScreen extends Screen {
     }
 
     @Override
-    public void close() {}
+    public void close() {
+    }
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
@@ -42,6 +43,6 @@ public class WaitingScreen extends Screen {
         context.drawCenteredTextWithShadow(txt, title, this.width / 2, 10, 0xFFFFFF);
 
         var body = Text.literal("You will automatically join the server once you are authenticated.");
-        context.drawCenteredTextWithShadow(txt, body, this.width / 2, 40, 0xFFFFFF);
+        context.drawCenteredTextWithShadow(txt, body, this.width / 2, this.height / 2 + txt.fontHeight / 2, 0xFFFFFF);
     }
 }

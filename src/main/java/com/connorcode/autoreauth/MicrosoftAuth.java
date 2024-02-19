@@ -38,14 +38,12 @@ public class MicrosoftAuth {
     public static final String CLIENT_ID = "e16699bb-2aa8-46da-b5e3-45cbcce29091";
     public static final int PORT = 9090;
     public static final String REDIRECT_URI = "http://localhost:" + PORT + "/callback";
-    public static Executor executor = Executors.newSingleThreadExecutor();
-
     public static final URI ACCESS_TOKEN_URI = URI.create("https://login.microsoftonline.com/consumers/oauth2/v2.0/token");
     public static final URI XBOX_AUTH_URI = URI.create("https://user.auth.xboxlive.com/user/authenticate");
     public static final URI XSTS_AUTH_URI = URI.create("https://xsts.auth.xboxlive.com/xsts/authorize");
     public static final URI MINECRAFT_AUTH_URI = URI.create("https://api.minecraftservices.com/authentication/login_with_xbox");
     public static final URI PROFILE_URI = URI.create("https://api.minecraftservices.com/minecraft/profile");
-
+    public static Executor executor = Executors.newSingleThreadExecutor();
     AuthProgressCallback callback;
 
     public MicrosoftAuth(AuthProgressCallback callback) {
@@ -205,12 +203,6 @@ public class MicrosoftAuth {
     CompletableFuture<XboxAuth> authenticateXbox(AccessToken token) {
         this.callback.onProgress("Authenticating Xbox");
         return CompletableFuture.supplyAsync(() -> {
-            try {
-                Thread.sleep(10000);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-
             try {
                 var client = HttpClients.createMinimal();
                 var req = new HttpPost(XBOX_AUTH_URI);
