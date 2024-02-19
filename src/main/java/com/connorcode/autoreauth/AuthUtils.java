@@ -17,16 +17,9 @@ import static com.connorcode.autoreauth.AutoReauth.client;
 import static com.connorcode.autoreauth.AutoReauth.log;
 
 public class AuthUtils {
-    private static long lastAuthStatusCheck = 0;
-    private static AuthStatus authStatus = AuthStatus.Unknown;
 
     public static CompletableFuture<AuthStatus> getAuthStatus() {
-//        if (System.currentTimeMillis() - lastAuthStatusCheck <= 1000 * 60 * 5 && authStatus != AuthStatus.Unknown)
-//            return CompletableFuture.completedFuture(authStatus);
-
         log.info("Checking auth status");
-        lastAuthStatusCheck = System.currentTimeMillis();
-
         return CompletableFuture.supplyAsync(() -> {
             var session = client.getSession();
             var token = session.getAccessToken();
@@ -36,15 +29,13 @@ public class AuthUtils {
             var sessionService = (YggdrasilMinecraftSessionService) client.getSessionService();
             try {
                 sessionService.joinServer(client.getSession().getUuidOrNull(), token, id);
-                authStatus = sessionService.hasJoinedServer(session.getUsername(), id, null) != null ? AuthStatus.Online : AuthStatus.Offline;
+                var authStatus = sessionService.hasJoinedServer(session.getUsername(), id, null) != null ? AuthStatus.Online : AuthStatus.Offline;
                 log.info("Auth status: " + authStatus.getText());
                 return authStatus;
             } catch (AuthenticationException e) {
                 log.error("Invalid auth status", e);
-                authStatus = AuthStatus.Invalid;
+                return AuthStatus.Invalid;
             }
-
-            return authStatus;
         });
     }
 
@@ -58,9 +49,6 @@ public class AuthUtils {
         client.abuseReportContext = AbuseReportContext.create(client.abuseReportContext.environment, client.userApiService);
         client.realmsPeriodicCheckers = new RealmsPeriodicCheckers(RealmsClient.create());
         RealmsAvailability.currentFuture = null;
-
-        authStatus = AuthStatus.Unknown;
-        lastAuthStatusCheck = 0;
     }
 
     public enum AuthStatus {

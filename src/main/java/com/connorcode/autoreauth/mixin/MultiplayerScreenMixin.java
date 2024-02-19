@@ -26,6 +26,8 @@ public class MultiplayerScreenMixin {
     @Unique
     CompletableFuture<AuthUtils.AuthStatus> authStatus;
     @Unique
+    long lastUpdate = System.currentTimeMillis();
+    @Unique
     boolean sentToast = false;
 
     @Inject(at = @At("TAIL"), method = "init")
@@ -48,7 +50,13 @@ public class MultiplayerScreenMixin {
 
     @Inject(at = @At("TAIL"), method = "tick")
     private void tick(CallbackInfo ci) {
-        var status = authStatus.getNow(AuthUtils.AuthStatus.Unknown);
+        var now = System.currentTimeMillis();
+        if (authStatus.isDone() && this.lastUpdate + 1000 * 60 * 5 < now) {
+            this.lastUpdate = now;
+            this.authStatus = AuthUtils.getAuthStatus();
+        }
+
+        var status = this.authStatus.getNow(AuthUtils.AuthStatus.Unknown);
         if (status.isInvalid() && !sentToast) {
             sentToast = true;
 
@@ -64,7 +72,7 @@ public class MultiplayerScreenMixin {
                 } catch (AuthenticationException e) {
                     log.error("Error re-authenticating", e);
                 }
-                authStatus = AuthUtils.getAuthStatus();
+                this.authStatus = AuthUtils.getAuthStatus();
                 Misc.sendToast("AuthReauth", String.format("Authenticated as %s!", session.getUsername()));
             }).exceptionally(e -> {
                 log.error("Error re-authenticating", e);
