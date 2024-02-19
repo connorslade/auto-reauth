@@ -1,4 +1,4 @@
-package com.connorcode.authreauth;
+package com.connorcode.autoreauth;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -32,7 +32,7 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
-import static com.connorcode.authreauth.AutoReauth.log;
+import static com.connorcode.autoreauth.AutoReauth.log;
 
 public class MicrosoftAuth {
     // Note: Im using the client ID from ReAuth it would take like a week to get my own approved for minecraft services

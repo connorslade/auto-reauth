@@ -1,9 +1,9 @@
-package com.connorcode.authreauth.mixin;
+package com.connorcode.autoreauth.mixin;
 
-import com.connorcode.authreauth.AuthUtils;
-import com.connorcode.authreauth.MicrosoftAuth;
-import com.connorcode.authreauth.Misc;
-import com.connorcode.authreauth.gui.ErrorScreen;
+import com.connorcode.autoreauth.AuthUtils;
+import com.connorcode.autoreauth.MicrosoftAuth;
+import com.connorcode.autoreauth.Misc;
+import com.connorcode.autoreauth.gui.ErrorScreen;
 import com.mojang.authlib.exceptions.AuthenticationException;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.DrawContext;
@@ -19,7 +19,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.concurrent.CompletableFuture;
 
-import static com.connorcode.authreauth.AutoReauth.*;
+import static com.connorcode.autoreauth.AutoReauth.*;
 
 @Mixin(MultiplayerScreen.class)
 public class MultiplayerScreenMixin {

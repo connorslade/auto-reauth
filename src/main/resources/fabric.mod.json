@@ -12,10 +12,10 @@
   "environment": "client",
   "entrypoints": {
     "client": [
-      "com.connorcode.authreauth.AutoReauth"
+      "com.connorcode.autoreauth.AutoReauth"
     ],
     "modmenu": [
-      "com.connorcode.authreauth.ModMenu"
+      "com.connorcode.autoreauth.ModMenu"
     ]
   },
   "mixins": [

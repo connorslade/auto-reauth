@@ -1,4 +1,4 @@
-package com.connorcode.authreauth;
+package com.connorcode.autoreauth;
 
 import com.mojang.authlib.exceptions.AuthenticationException;
 import com.mojang.authlib.yggdrasil.YggdrasilMinecraftSessionService;
@@ -13,8 +13,8 @@ import net.minecraft.client.session.report.AbuseReportContext;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
-import static com.connorcode.authreauth.AutoReauth.client;
-import static com.connorcode.authreauth.AutoReauth.log;
+import static com.connorcode.autoreauth.AutoReauth.client;
+import static com.connorcode.autoreauth.AutoReauth.log;
 
 public class AuthUtils {
     private static long lastAuthStatusCheck = 0;

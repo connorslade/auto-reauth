@@ -1,6 +1,6 @@
-package com.connorcode.authreauth.gui;
+package com.connorcode.autoreauth.gui;
 
-import com.connorcode.authreauth.AutoReauth;
+import com.connorcode.autoreauth.AutoReauth;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;

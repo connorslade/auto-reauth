@@ -1,8 +1,8 @@
-package com.connorcode.authreauth.gui;
+package com.connorcode.autoreauth.gui;
 
-import com.connorcode.authreauth.AutoReauth;
-import com.connorcode.authreauth.Config;
-import com.connorcode.authreauth.MicrosoftAuth;
+import com.connorcode.autoreauth.AutoReauth;
+import com.connorcode.autoreauth.Config;
+import com.connorcode.autoreauth.MicrosoftAuth;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
@@ -17,8 +17,8 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.concurrent.Semaphore;
 
-import static com.connorcode.authreauth.AutoReauth.config;
-import static com.connorcode.authreauth.AutoReauth.log;
+import static com.connorcode.autoreauth.AutoReauth.config;
+import static com.connorcode.autoreauth.AutoReauth.log;
 
 public class ConfigScreen extends Screen {
     private final GridWidget grid = new GridWidget().setColumnSpacing(10);

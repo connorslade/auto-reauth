@@ -1,4 +1,4 @@
-package com.connorcode.authreauth;
+package com.connorcode.autoreauth;
 
 import com.mojang.logging.LogUtils;
 import net.fabricmc.api.ClientModInitializer;

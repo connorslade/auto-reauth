@@ -1,6 +1,6 @@
-package com.connorcode.authreauth;
+package com.connorcode.autoreauth;
 
-import com.connorcode.authreauth.gui.ConfigScreen;
+import com.connorcode.autoreauth.gui.ConfigScreen;
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
 

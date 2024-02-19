@@ -1,4 +1,4 @@
-package com.connorcode.authreauth;
+package com.connorcode.autoreauth;
 
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtIo;
@@ -7,7 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
 
-import static com.connorcode.authreauth.AutoReauth.directory;
+import static com.connorcode.autoreauth.AutoReauth.directory;
 
 public class Config {
     public static final File CONFIG_PATH = new File(directory.toFile(), "config.nbt");

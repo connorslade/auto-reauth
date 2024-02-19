@@ -1,4 +1,4 @@
-package com.connorcode.authreauth;
+package com.connorcode.autoreauth;
 
 import net.minecraft.client.toast.SystemToast;
 import net.minecraft.text.Text;
@@ -6,7 +6,7 @@ import net.minecraft.text.Text;
 import java.math.BigInteger;
 import java.util.UUID;
 
-import static com.connorcode.authreauth.AutoReauth.client;
+import static com.connorcode.autoreauth.AutoReauth.client;
 
 public class Misc {
     // Modified from https://stackoverflow.com/a/30760478/12471934
