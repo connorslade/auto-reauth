@@ -1,7 +1,7 @@
 package com.connorcode.autoreauth.gui;
 
-import com.connorcode.autoreauth.AuthUtils;
 import com.connorcode.autoreauth.AutoReauth;
+import com.connorcode.autoreauth.auth.AuthUtils;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.network.ServerAddress;
@@ -12,12 +12,15 @@ import net.minecraft.text.Text;
 import static com.connorcode.autoreauth.AutoReauth.serverJoin;
 
 public class WaitingScreen extends Screen {
+    Screen parent;
+
     ServerAddress address;
     ServerInfo info;
     boolean quickPlay;
 
-    public WaitingScreen(ServerAddress address, ServerInfo info, boolean quickPlay) {
+    public WaitingScreen(Screen parent, ServerAddress address, ServerInfo info, boolean quickPlay) {
         super(Text.of("Waiting for Reauth"));
+        this.parent = parent;
         this.address = address;
         this.info = info;
         this.quickPlay = quickPlay;
@@ -32,6 +35,7 @@ public class WaitingScreen extends Screen {
 
     @Override
     public void close() {
+        AutoReauth.client.setScreen(this.parent);
     }
 
     @Override

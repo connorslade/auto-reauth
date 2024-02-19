@@ -1,5 +1,6 @@
-package com.connorcode.autoreauth;
+package com.connorcode.autoreauth.auth;
 
+import com.connorcode.autoreauth.Misc;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -32,6 +33,7 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
+import static com.connorcode.autoreauth.AutoReauth.config;
 import static com.connorcode.autoreauth.AutoReauth.log;
 
 public class MicrosoftAuth {
@@ -96,6 +98,7 @@ public class MicrosoftAuth {
                     }
 
                     finalCode.set(code);
+                    log.info("Got code: {}", finalCode.get());
                     ctx.sendResponseHeaders(200, 0);
                     ctx.getResponseBody().write("You can close this tab now.".getBytes());
                     ctx.close();
@@ -133,6 +136,10 @@ public class MicrosoftAuth {
         });
     }
 
+    public static void debugLog(String fmt, Object... args) {
+        if (config.debug) log.info(fmt, args);
+    }
+
     public CompletableFuture<Session> authenticate(String code) {
         return getAccessToken(code).thenCompose(this::authenticateXbox).thenCompose(this::obtainXstsToken)
                 .thenCompose(this::authenticateMinecraft).thenCompose(this::createSession);
@@ -156,6 +163,7 @@ public class MicrosoftAuth {
 
                 var result = client.execute(req);
                 var str = EntityUtils.toString(result.getEntity());
+                debugLog("Access token response: {}", str);
                 var json = JsonHelper.deserialize(str);
 
                 var ctx = "access token response from code";
@@ -179,6 +187,7 @@ public class MicrosoftAuth {
 
                 var result = client.execute(req);
                 var str = EntityUtils.toString(result.getEntity());
+                debugLog("Refresh token response: {}", str);
                 var json = JsonHelper.deserialize(str);
 
                 var ctx = "access token response from refresh token";
@@ -211,7 +220,7 @@ public class MicrosoftAuth {
 
                 var result = client.execute(req);
                 var str = EntityUtils.toString(result.getEntity());
-                log.info("Xbox auth response: {}", str);
+                debugLog("Xbox auth response: {}", str);
                 var json = JsonHelper.deserialize(str);
 
                 var ctx = "xbox auth response";
@@ -246,7 +255,7 @@ public class MicrosoftAuth {
 
                 var result = client.execute(req);
                 var str = EntityUtils.toString(result.getEntity());
-                log.info("XSTS auth response: {}", str);
+                debugLog("XSTS auth response: {}", str);
                 var json = JsonHelper.deserialize(str);
 
                 var ctx = "xsts auth response";
@@ -272,7 +281,7 @@ public class MicrosoftAuth {
 
                 var result = client.execute(req);
                 var str = EntityUtils.toString(result.getEntity());
-                log.info("Minecraft auth response: {}", str);
+                debugLog("Minecraft auth response: {}", str);
                 var json = JsonHelper.deserialize(str);
 
                 var ctx = "minecraft auth response";
@@ -294,7 +303,7 @@ public class MicrosoftAuth {
 
                 var result = client.execute(req);
                 var str = EntityUtils.toString(result.getEntity());
-                log.info("Profile response: {}", str);
+                debugLog("Profile response: {}", str);
                 var json = JsonHelper.deserialize(str);
 
                 var ctx = "profile response";

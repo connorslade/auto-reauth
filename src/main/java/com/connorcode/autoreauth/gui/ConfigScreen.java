@@ -1,11 +1,11 @@
 package com.connorcode.autoreauth.gui;
 
 import com.connorcode.autoreauth.AutoReauth;
-import com.connorcode.autoreauth.Config;
-import com.connorcode.autoreauth.MicrosoftAuth;
+import com.connorcode.autoreauth.auth.MicrosoftAuth;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.GridWidget;
 import net.minecraft.client.gui.widget.SimplePositioningWidget;
@@ -14,14 +14,13 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
 import java.util.ArrayList;
-import java.util.Optional;
 import java.util.concurrent.Semaphore;
 
 import static com.connorcode.autoreauth.AutoReauth.config;
 import static com.connorcode.autoreauth.AutoReauth.log;
 
 public class ConfigScreen extends Screen {
-    private final GridWidget grid = new GridWidget().setColumnSpacing(10);
+    private final GridWidget grid = new GridWidget().setColumnSpacing(5);
     Screen parent;
     Semaphore semaphore = new Semaphore(0);
 
@@ -32,23 +31,26 @@ public class ConfigScreen extends Screen {
 
     @Override
     protected void init() {
-        var adder = this.grid.createAdder(2);
+        var adder = this.grid.createAdder(3);
         var positioner = adder.copyPositioner().alignHorizontalCenter();
 
         adder.add(ButtonWidget.builder(Text.of("Save & Back"), (button) -> {
-            config.ifPresent(Config::save);
+            config.save();
             AutoReauth.client.setScreen(this.parent);
         }).build(), positioner);
-        adder.add(ButtonWidget.builder(Text.of(config.isPresent() ? "Login Again" : "Login"), (button) -> MicrosoftAuth.getCode(semaphore)
+        adder.add(ButtonWidget.builder(Text.of(config.tokenExists() ? "Login Again" : "Login"), (button) -> MicrosoftAuth.getCode(semaphore)
                 .thenCompose(code -> new MicrosoftAuth().getAccessToken(code)).thenAccept(access -> {
-                    var newConfig = Config.of(access);
-                    newConfig.save();
-                    config = Optional.of(newConfig);
+                    config.accessToken = access.accessToken();
+                    config.refreshToken = access.refreshToken();
+                    config.save();
                 }).exceptionally(e -> {
                     log.error("Error re-authenticating", e);
                     RenderSystem.recordRenderCall(() -> AutoReauth.client.setScreen(new ErrorScreen("Error re-authenticating", e.toString())));
                     return null;
                 })).build(), positioner);
+        adder.add(ButtonWidget.builder(Text.of("D"), (button) -> {
+            config.debug ^= true;
+        }).tooltip(Tooltip.of(Text.of("Toggles debug mode"))).size(20, 20).build(), positioner);
 
         this.grid.forEachChild(this::addDrawableChild);
         this.grid.refreshPositions();
@@ -73,12 +75,20 @@ public class ConfigScreen extends Screen {
 
         var textLines = new ArrayList<Text>();
         textLines.add(Text.literal("Config: ")
-                .append(Text.literal(AutoReauth.config.isPresent() ? "Present" : "Not present")
-                        .fillStyle(Style.EMPTY.withColor(AutoReauth.config.isPresent() ? 0x00FF00 : 0xFF0000))));
-        if (AutoReauth.config.isEmpty())
+                .append(Text.literal(AutoReauth.config.tokenExists() ? "Present" : "Not present")
+                        .fillStyle(Style.EMPTY.withColor(AutoReauth.config.tokenExists() ? 0x00FF00 : 0xFF0000))));
+        if (!AutoReauth.config.tokenExists())
             textLines.add(Text.literal("Because config is not present, you will need to login."));
         textLines.add(Text.literal("Warning: Tokens are stored in your config folder.")
                 .fillStyle(Style.EMPTY.withColor(Formatting.GOLD)));
+
+
+        if (config.debug) {
+            textLines.add(Text.literal(""));
+            textLines.add(Text.literal("Debug Mode Enabled").fillStyle(Style.EMPTY.withColor(0xFF0000)));
+            textLines.add(Text.literal("Warning: Debug mode will send auth tokens in the log.")
+                    .fillStyle(Style.EMPTY.withColor(Formatting.GOLD)));
+        }
 
         var maxWidth = textLines.stream().mapToInt(txt::getWidth).max().orElse(0);
         for (var line : textLines) {

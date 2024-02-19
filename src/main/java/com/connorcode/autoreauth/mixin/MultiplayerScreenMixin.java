@@ -1,8 +1,8 @@
 package com.connorcode.autoreauth.mixin;
 
-import com.connorcode.autoreauth.AuthUtils;
-import com.connorcode.autoreauth.MicrosoftAuth;
 import com.connorcode.autoreauth.Misc;
+import com.connorcode.autoreauth.auth.AuthUtils;
+import com.connorcode.autoreauth.auth.MicrosoftAuth;
 import com.connorcode.autoreauth.gui.ErrorScreen;
 import com.mojang.authlib.exceptions.AuthenticationException;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -59,14 +59,14 @@ public class MultiplayerScreenMixin {
         var status = this.authStatus.getNow(AuthUtils.AuthStatus.Unknown);
         if (status.isInvalid() && !sentToast) {
             sentToast = true;
-            if (config.isEmpty()) {
+            if (!config.tokenExists()) {
                 Misc.sendToast("AuthReauth", "Session expired but no login info found");
                 return;
             }
 
             Misc.sendToast("AuthReauth", "Session expired, reauthenticating...");
             serverJoin.acquireUninterruptibly();
-            new MicrosoftAuth(s -> log.info(s)).authenticate(config.get().asAccessToken()).thenAccept(session -> {
+            new MicrosoftAuth(s -> log.info(s)).authenticate(config.asAccessToken()).thenAccept(session -> {
                 try {
                     AuthUtils.setSession(session);
                 } catch (AuthenticationException e) {

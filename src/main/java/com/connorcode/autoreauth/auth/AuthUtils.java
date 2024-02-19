@@ -1,4 +1,4 @@
-package com.connorcode.autoreauth;
+package com.connorcode.autoreauth.auth;
 
 import com.mojang.authlib.exceptions.AuthenticationException;
 import com.mojang.authlib.yggdrasil.YggdrasilMinecraftSessionService;

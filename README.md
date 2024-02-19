@@ -1,4 +1,4 @@
-# auto-reauth
+# auto-reauth [![build](https://github.com/Basicprogrammer10/auto-reauth/actions/workflows/build.yml/badge.svg)](https://github.com/Basicprogrammer10/auto-reauth/actions/workflows/build.yml)
 
 Requires: <kbd>[Minecraft 1.20.2](https://minecraft.wiki/w/Java_Edition_1.20.2)</kbd> <kbd>[Fabric API](https://modrinth.com/mod/fabric-api/version/0.91.6+1.20.2)</kbd> <kbd>[Mod Menu](https://modrinth.com/mod/modmenu/version/8.0.1)</kbd>
 

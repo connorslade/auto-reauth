@@ -22,7 +22,7 @@ public class ConnectScreenMixin {
             return;
         }
 
-        client.setScreen(new WaitingScreen(address, info, quickPlay));
+        client.setScreen(new WaitingScreen(client.currentScreen, address, info, quickPlay));
         ci.cancel();
     }
 }

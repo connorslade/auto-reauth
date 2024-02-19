@@ -4,9 +4,13 @@
   "version": "${version}",
   "name": "auto-reauth",
   "description": "Automatically re-authenticates your session when it expires",
-  "authors": ["Connor Slade"],
+  "icon": "assets/icon.png",
+  "authors": [
+    "Connor Slade"
+  ],
   "contact": {
-    "repo": "https://github.com/connorslade/auth-reauth"
+    "repo": "https://github.com/connorslade/auth-reauth",
+    "issues": "https://github.com/connorslade/auth-reauth/issues"
   },
   "license": "MIT",
   "environment": "client",
@@ -30,7 +34,7 @@
   "custom": {
     "modmenu": {
       "links": {
-        "Github": "https://github.com/Basicprogrammer10/auto-reauth",
+        "Source Code": "https://github.com/Basicprogrammer10/auto-reauth",
         "My Website": "https://connorcode.com"
       }
     }
