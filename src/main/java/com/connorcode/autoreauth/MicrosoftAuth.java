@@ -26,7 +26,9 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.*;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -38,12 +40,13 @@ public class MicrosoftAuth {
     public static final String CLIENT_ID = "e16699bb-2aa8-46da-b5e3-45cbcce29091";
     public static final int PORT = 9090;
     public static final String REDIRECT_URI = "http://localhost:" + PORT + "/callback";
+
     public static final URI ACCESS_TOKEN_URI = URI.create("https://login.microsoftonline.com/consumers/oauth2/v2.0/token");
     public static final URI XBOX_AUTH_URI = URI.create("https://user.auth.xboxlive.com/user/authenticate");
     public static final URI XSTS_AUTH_URI = URI.create("https://xsts.auth.xboxlive.com/xsts/authorize");
     public static final URI MINECRAFT_AUTH_URI = URI.create("https://api.minecraftservices.com/authentication/login_with_xbox");
     public static final URI PROFILE_URI = URI.create("https://api.minecraftservices.com/minecraft/profile");
-    public static Executor executor = Executors.newSingleThreadExecutor();
+
     AuthProgressCallback callback;
 
     public MicrosoftAuth(AuthProgressCallback callback) {
@@ -127,7 +130,7 @@ public class MicrosoftAuth {
 
             server.stop(0);
             return finalCode.get();
-        }, executor);
+        });
     }
 
     public CompletableFuture<Session> authenticate(String code) {
@@ -162,7 +165,7 @@ public class MicrosoftAuth {
             } catch (IOException e) {
                 throw new AuthException("Failed to get access token from code", e);
             }
-        }, executor);
+        });
     }
 
     CompletableFuture<AccessToken> refreshAccessToken(String refreshToken) {
@@ -185,7 +188,7 @@ public class MicrosoftAuth {
             } catch (IOException e) {
                 throw new AuthException("Failed to get access token from refresh token", e);
             }
-        }, executor);
+        });
     }
 
     CompletableFuture<XboxAuth> authenticateXbox(AccessToken token) {
@@ -219,7 +222,7 @@ public class MicrosoftAuth {
             } catch (IOException e) {
                 throw new AuthException("Failed to authenticate Xbox", e);
             }
-        }, executor);
+        });
     }
 
     CompletableFuture<XboxAuth> obtainXstsToken(XboxAuth xboxAuth) {
@@ -252,7 +255,7 @@ public class MicrosoftAuth {
             } catch (IOException e) {
                 throw new AuthException("Failed to obtain XSTS token", e);
             }
-        }, executor);
+        });
     }
 
     CompletableFuture<MinecraftAuth> authenticateMinecraft(XboxAuth xstsAuth) {
@@ -278,7 +281,7 @@ public class MicrosoftAuth {
             } catch (IOException e) {
                 throw new AuthException("Failed to authenticate Minecraft", e);
             }
-        }, executor);
+        });
     }
 
     CompletableFuture<Session> createSession(MinecraftAuth minecraftAuth) {
@@ -302,7 +305,7 @@ public class MicrosoftAuth {
             } catch (IOException e) {
                 throw new AuthException("Failed to create session", e);
             }
-        }, executor);
+        });
     }
 
     public interface AuthProgressCallback {
