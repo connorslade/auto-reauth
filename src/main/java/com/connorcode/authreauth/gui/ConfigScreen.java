@@ -10,7 +10,9 @@ import net.minecraft.client.gui.widget.GridWidget;
 import net.minecraft.client.gui.widget.SimplePositioningWidget;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
@@ -41,10 +43,8 @@ public class ConfigScreen extends Screen {
                 var newConfig = Config.of(access);
                 newConfig.save();
                 config = Optional.of(newConfig);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            } catch (ExecutionException e) {
-                throw new RuntimeException(e);
+            } catch (InterruptedException | ExecutionException e) {
+                AutoReauth.client.setScreen(new ErrorScreen("Error re-authenticating", e.toString()));
             }
         }).build(), positioner);
 
@@ -54,20 +54,30 @@ public class ConfigScreen extends Screen {
     }
 
     @Override
+    public void close() {
+        AutoReauth.client.setScreen(this.parent);
+    }
+
+    @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
         var txt = AutoReauth.client.textRenderer;
         var height = textRenderer.fontHeight + textRenderer.fontHeight / 3;
+        var y = 40;
 
         var title = Text.literal("AutoReauth Config").fillStyle(Style.EMPTY.withBold(true));
         context.drawCenteredTextWithShadow(txt, title, this.width / 2, 20, 0xFFFFFF);
 
-        var config = Text.literal("Config: ").append(Text.literal(AutoReauth.config.isPresent() ? "Present" : "Not present").fillStyle(Style.EMPTY.withColor(AutoReauth.config.isPresent() ? 0x00FF00 : 0xFF0000)));
-        context.drawText(txt, config, 10, 40, 0xFFFFFF, true);
+        var textLines = new ArrayList<Text>();
+        textLines.add(Text.literal("Config: ").append(Text.literal(AutoReauth.config.isPresent() ? "Present" : "Not present").fillStyle(Style.EMPTY.withColor(AutoReauth.config.isPresent() ? 0x00FF00 : 0xFF0000))));
+        if (AutoReauth.config.isEmpty())
+            textLines.add(Text.literal("Because config is not present, you will need to login."));
+        textLines.add(Text.literal("Warning: Tokens are stored in your config folder.").fillStyle(Style.EMPTY.withColor(Formatting.GOLD)));
 
-        if (AutoReauth.config.isEmpty()) {
-            var username = Text.literal("Because config is not present, you will need to login.");
-            context.drawText(txt, username, 10, 40 + height, 0xFFFFFF, true);
+        var maxWidth = textLines.stream().mapToInt(txt::getWidth).max().orElse(0);
+        for (var line : textLines) {
+            context.drawText(txt, line, (this.width - maxWidth) / 2, y, 0xFFFFFF, true);
+            y += height;
         }
     }
 }
