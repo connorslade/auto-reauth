@@ -20,4 +20,11 @@ public class Misc {
     public static void sendToast(String title, String message) {
         client.getToastManager().add(new SystemToast(SystemToast.Type.TUTORIAL_HINT, Text.of(title), Text.of(message)));
     }
+
+    public static String randomString(int length) {
+        var sb = new StringBuilder();
+        for (int i = 0; i < length; i++)
+            sb.append((char) (Math.random() * 26 + 'a'));
+        return sb.toString();
+    }
 }

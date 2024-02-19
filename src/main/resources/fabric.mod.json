@@ -13,6 +13,9 @@
   "entrypoints": {
     "client": [
       "com.connorcode.authreauth.AutoReauth"
+    ],
+    "modmenu": [
+      "com.connorcode.authreauth.ModMenu"
     ]
   },
   "mixins": [
@@ -23,5 +26,13 @@
     "fabricloader": ">=${loader_version}",
     "fabric": "*",
     "minecraft": "${minecraft_version}"
+  },
+  "custom": {
+    "modmenu": {
+      "links": {
+        "Github": "https://github.com/Basicprogrammer10/auto-reauth",
+        "My Website": "https://connorcode.com"
+      }
+    }
   }
 }

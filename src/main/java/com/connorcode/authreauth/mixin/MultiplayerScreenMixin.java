@@ -16,8 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
-import static com.connorcode.authreauth.AutoReauth.client;
-import static com.connorcode.authreauth.AutoReauth.log;
+import static com.connorcode.authreauth.AutoReauth.*;
 
 @Mixin(MultiplayerScreen.class)
 public class MultiplayerScreenMixin {
@@ -41,11 +40,16 @@ public class MultiplayerScreenMixin {
     private void tick(CallbackInfo ci) throws InterruptedException {
         var status = authStatus.getNow(AuthUtils.AuthStatus.Unknown);
         if (status.isInvalid() && !sentToast) {
+            if (config.isEmpty()) {
+                Misc.sendToast("AuthReauth", "Session expired but no login info found");
+                return;
+            }
+
             Misc.sendToast("AuthReauth", "Session expired, reauthenticating...");
             sentToast = true;
 
             try {
-                var session = new MicrosoftAuth(s -> log.info(s)).authenticate().get();
+                var session = new MicrosoftAuth(s -> log.info(s)).authenticate(config.get().asAccessToken()).get();
                 AuthUtils.setSession(session);
                 authStatus = AuthUtils.getAuthStatus();
                 Misc.sendToast("AuthReauth", String.format("Authenticated as %s!", session.getUsername()));

@@ -1,11 +1,58 @@
 package com.connorcode.authreauth;
 
-import java.util.UUID;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtIo;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Optional;
+
+import static com.connorcode.authreauth.AutoReauth.config;
+import static com.connorcode.authreauth.AutoReauth.directory;
 
 public class Config {
-    String username = "Sigma76";
-    UUID uuid = UUID.fromString("3c358264-b456-4bde-ab1e-fe1023db6679");
-    String accessToken = "eyJraWQiOiJhYzg0YSIsImFsZyI6IkhTMjU2In0.eyJ4dWlkIjoiMjUzNTQwODU2ODg4NzE3NiIsImFnZyI6IkFkdWx0Iiwic3ViIjoiNDgzMzMzZTQtOTFkZS00NDFjLTlmMjAtMjVlOTViYjI0Y2UyIiwiYXV0aCI6IlhCT1giLCJucyI6ImRlZmF1bHQiLCJyb2xlcyI6W10sImlzcyI6ImF1dGhlbnRpY2F0aW9uIiwiZmxhZ3MiOlsidHdvZmFjdG9yYXV0aCIsIm1zYW1pZ3JhdGlvbl9zdGFnZTQiLCJvcmRlcnNfMjAyMiIsIm11bHRpcGxheWVyIl0sInByb2ZpbGVzIjp7Im1jIjoiM2MzNTgyNjQtYjQ1Ni00YmRlLWFiMWUtZmUxMDIzZGI2Njc5In0sInBsYXRmb3JtIjoiVU5LTk9XTiIsInl1aWQiOiI4YjkzZGJlMzE0OTg3NzQzMDRmNzhiMGMwNTBlODhmNCIsIm5iZiI6MTcwODI4MzM4OSwiZXhwIjoxNzA4MzY5Nzg5LCJpYXQiOjE3MDgyODMzODl9.8KEBdFH-kL1_GN8TJDDN_8Qg7qco3ASfyZNX10BhL4I";
-    String xuid;
-    String clientId;
+    public static final File CONFIG_PATH = new File(directory.toFile(), "config.nbt");
+    public String accessToken;
+    public String refreshToken;
+
+    public Config(String accessToken, String refreshToken) {
+        this.accessToken = accessToken;
+        this.refreshToken = refreshToken;
+    }
+
+    public static Config of(MicrosoftAuth.AccessToken accessToken) {
+        return new Config(accessToken.accessToken(), accessToken.refreshToken());
+    }
+
+    public static Optional<Config> load() {
+        if (!CONFIG_PATH.exists()) return Optional.empty();
+
+        try {
+            var tag = NbtIo.read(CONFIG_PATH);
+            assert tag != null;
+
+            var accessToken = tag.getString("accessToken");
+            var refreshToken = tag.getString("refreshToken");
+            return Optional.of(new Config(accessToken, refreshToken));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public MicrosoftAuth.AccessToken asAccessToken() {
+        return new MicrosoftAuth.AccessToken(accessToken, refreshToken);
+    }
+
+    public void save() {
+        var tag = new NbtCompound();
+        tag.putString("accessToken", accessToken);
+        tag.putString("refreshToken", refreshToken);
+
+        try {
+            var _ignored = CONFIG_PATH.getParentFile().mkdirs();
+            NbtIo.write(tag, CONFIG_PATH);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
