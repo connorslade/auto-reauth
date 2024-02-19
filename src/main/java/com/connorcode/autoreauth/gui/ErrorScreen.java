@@ -13,9 +13,9 @@ public class ErrorScreen extends Screen {
     String title;
     String error;
 
-    public ErrorScreen(String title, String error) {
+    public ErrorScreen(Screen parent, String title, String error) {
         super(Text.of("Error"));
-        this.parent = AutoReauth.client.currentScreen;
+        this.parent = parent;
         this.title = title;
         this.error = error;
     }

@@ -45,7 +45,7 @@ public class ConfigScreen extends Screen {
                     config.save();
                 }).exceptionally(e -> {
                     log.error("Error re-authenticating", e);
-                    RenderSystem.recordRenderCall(() -> AutoReauth.client.setScreen(new ErrorScreen("Error re-authenticating", e.toString())));
+                    RenderSystem.recordRenderCall(() -> AutoReauth.client.setScreen(new ErrorScreen(this, "Error re-authenticating", e.toString())));
                     return null;
                 })).build(), positioner);
         adder.add(ButtonWidget.builder(Text.of("D"), (button) -> {

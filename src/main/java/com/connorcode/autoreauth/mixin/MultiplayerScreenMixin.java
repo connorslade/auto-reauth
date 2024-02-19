@@ -7,6 +7,7 @@ import com.connorcode.autoreauth.gui.ErrorScreen;
 import com.mojang.authlib.exceptions.AuthenticationException;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
@@ -78,7 +79,7 @@ public class MultiplayerScreenMixin {
             }).exceptionally(e -> {
                 serverJoin.release();
                 log.error("Error re-authenticating", e);
-                RenderSystem.recordRenderCall(() -> client.setScreen(new ErrorScreen("Error re-authenticating", e.toString())));
+                RenderSystem.recordRenderCall(() -> client.setScreen(new ErrorScreen((Screen) (Object) this, "Error re-authenticating", e.toString())));
                 return null;
             });
         }

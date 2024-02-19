@@ -9,7 +9,8 @@
     "Connor Slade"
   ],
   "contact": {
-    "repo": "https://github.com/connorslade/auth-reauth",
+    "sources": "https://github.com/connorslade/auth-reauth",
+    "homepage": "https://github.com/connorslade/auth-reauth",
     "issues": "https://github.com/connorslade/auth-reauth/issues"
   },
   "license": "MIT",
