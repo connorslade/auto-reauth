@@ -35,8 +35,7 @@ public class Common {
             return;
         }
 
-        var text = Text.literal(String.format("%s - %s", status, authStatus.isDone()))
-                .fillStyle(Style.EMPTY.withColor(color));
+        var text = Text.literal(String.valueOf(status)).fillStyle(Style.EMPTY.withColor(color));
         context.drawText(client.textRenderer, text, 10, 10, 0xFFFFFF, true);
     }
 

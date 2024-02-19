@@ -54,7 +54,7 @@ public class ConfigScreen extends Screen {
 
         this.grid.forEachChild(this::addDrawableChild);
         this.grid.refreshPositions();
-        SimplePositioningWidget.setPos(this.grid, 0, 0, this.width, this.height, 0.5f, 0.9f);
+        SimplePositioningWidget.setPos(this.grid, 0, this.height - 64, this.width, 64);
     }
 
     @Override

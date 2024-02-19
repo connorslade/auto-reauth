@@ -1,11 +1,11 @@
-# auto-reauth [![build](https://github.com/Basicprogrammer10/auto-reauth/actions/workflows/build.yml/badge.svg)](https://github.com/Basicprogrammer10/auto-reauth/actions/workflows/build.yml)
+# auto-reauth [![build](https://github.com/Basicprogrammer10/auto-reauth/actions/workflows/build.yml/badge.svg)](https://github.com/Basicprogrammer10/auto-reauth/actions/workflows/build.yml) ![GitHub Release](https://img.shields.io/github/v/release/Basicprogrammer10/auto-reauth) ![Modrinth Downloads](https://img.shields.io/modrinth/dt/lab8OplF)
 
 Requires: <kbd>[Minecraft 1.20.2](https://minecraft.wiki/w/Java_Edition_1.20.2)</kbd> <kbd>[Fabric API](https://modrinth.com/mod/fabric-api/version/0.91.6+1.20.2)</kbd> <kbd>[Mod Menu](https://modrinth.com/mod/modmenu/version/8.0.1)</kbd>
 
 This is a mod that automatically re-authenticates your session when it expires.
 Without this mod, you need to restart your game every time your session expires (about every day).
 
-![Screen Recording of auto-reauth](https://github.com/Basicprogrammer10/auto-reauth/assets/50306817/8d237667-cb00-45cf-b6dd-5ae3cbf5cc37)
+![Screen Recording of auto-reauth](https://github.com/Basicprogrammer10/auto-reauth/assets/50306817/0d8b2d50-7d2b-4b86-8f92-a0f6baed7e26)
 
 ## Usage
 
@@ -15,10 +15,10 @@ Here you can click "Login" to be redirected to the Microsoft login page, after s
 Now, anytime you open the multiplayer menu, auto reauth will check your session status, and re-authenticate if necessary.
 The tokens may expire after some time (like 90 days) so if you start having issues with the mod, try logging in again.
 
-Do note that using this mod will store your authentication tokens in your config folder (config/auto-reauth/config.nbt) and probably send them in the log as well.
+Do note that using this mod will store your authentication tokens in your config folder (config/auto-reauth/config.nbt).
 So just be careful about that.
 
 ## References
 
-- [Microsoft Authentication Scheme](https://wiki.vg/Microsoft_Authentication_Scheme) &mdash; Information on how the Microsoft authentication flow works for Minecraft. 
+- [Microsoft Authentication Scheme](https://wiki.vg/Microsoft_Authentication_Scheme) &mdash; Information on how the Microsoft authentication flow works for Minecraft.
 - [Auth Me](https://github.com/axieum/authme) &mdash; A mod that lets you re-authenticate your session manually.

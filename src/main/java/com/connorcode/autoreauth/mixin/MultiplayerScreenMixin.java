@@ -18,7 +18,7 @@ public class MultiplayerScreenMixin extends Screen {
         throw new UnsupportedOperationException("Mixin constructor");
     }
 
-    @Inject(at = @At("TAIL"), method = "init")
+    @Inject(at = @At("TAIL"), method = "<init>")
     private void init(CallbackInfo ci) {
         refreshAuthStatus();
     }
