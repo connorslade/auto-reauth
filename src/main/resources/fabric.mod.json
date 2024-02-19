@@ -3,12 +3,12 @@
   "id": "auto-reauth",
   "version": "${version}",
   "name": "auto-reauth",
-  "description": "",
-  "authors": [],
+  "description": "Automatically re-authenticates your session when it expires",
+  "authors": ["Connor Slade"],
   "contact": {
     "repo": "https://github.com/connorslade/auth-reauth"
   },
-  "license": "All-Rights-Reserved",
+  "license": "MIT",
   "environment": "client",
   "entrypoints": {
     "client": [
