@@ -9,9 +9,9 @@
     "Connor Slade"
   ],
   "contact": {
-    "sources": "https://github.com/connorslade/auth-reauth",
-    "homepage": "https://github.com/connorslade/auth-reauth",
-    "issues": "https://github.com/connorslade/auth-reauth/issues"
+    "sources": "https://github.com/Basicprogrammer10/auto-reauth",
+    "homepage": "https://github.com/Basicprogrammer10/auto-reauth",
+    "issues": "https://github.com/Basicprogrammer10/auto-reauth/issues"
   },
   "license": "MIT",
   "environment": "client",

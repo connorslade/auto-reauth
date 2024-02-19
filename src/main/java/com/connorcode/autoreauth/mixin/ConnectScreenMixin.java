@@ -11,6 +11,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import static com.connorcode.autoreauth.AutoReauth.authStatus;
 import static com.connorcode.autoreauth.AutoReauth.serverJoin;
 
 @Mixin(ConnectScreen.class)
@@ -19,7 +20,7 @@ public class ConnectScreenMixin {
     private static void onConnect(Screen screen, MinecraftClient client, ServerAddress address, ServerInfo info, boolean quickPlay, CallbackInfo ci) {
         if (serverJoin.tryAcquire()) {
             serverJoin.release();
-            return;
+            if (authStatus.isDone()) return;
         }
 
         client.setScreen(new WaitingScreen(client.currentScreen, address, info, quickPlay));

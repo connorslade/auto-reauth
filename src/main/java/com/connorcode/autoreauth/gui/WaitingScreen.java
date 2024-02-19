@@ -9,6 +9,7 @@ import net.minecraft.client.network.ServerInfo;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 
+import static com.connorcode.autoreauth.AutoReauth.authStatus;
 import static com.connorcode.autoreauth.AutoReauth.serverJoin;
 
 public class WaitingScreen extends Screen {
@@ -28,6 +29,7 @@ public class WaitingScreen extends Screen {
 
     @Override
     public void tick() {
+        if (!authStatus.isDone()) return;
         if (!serverJoin.tryAcquire()) return;
         serverJoin.release();
         AuthUtils.connectToServer(address, info, quickPlay);
