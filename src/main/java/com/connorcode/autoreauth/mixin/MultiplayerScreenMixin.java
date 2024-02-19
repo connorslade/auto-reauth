@@ -64,13 +64,8 @@ public class MultiplayerScreenMixin {
                 return;
             }
 
-            try {
-                serverJoin.acquire();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-
             Misc.sendToast("AuthReauth", "Session expired, reauthenticating...");
+            serverJoin.acquireUninterruptibly();
             new MicrosoftAuth(s -> log.info(s)).authenticate(config.get().asAccessToken()).thenAccept(session -> {
                 try {
                     AuthUtils.setSession(session);

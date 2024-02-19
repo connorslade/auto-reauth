@@ -26,8 +26,8 @@ public class WaitingScreen extends Screen {
     @Override
     public void tick() {
         if (!serverJoin.tryAcquire()) return;
-        AuthUtils.connectToServer(address, info, quickPlay);
         serverJoin.release();
+        AuthUtils.connectToServer(address, info, quickPlay);
     }
 
     @Override
