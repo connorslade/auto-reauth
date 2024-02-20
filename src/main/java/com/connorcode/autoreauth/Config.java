@@ -23,7 +23,7 @@ public class Config {
         if (!CONFIG_PATH.exists()) return false;
 
         try {
-            var tag = NbtIo.read(CONFIG_PATH);
+            var tag = NbtIo.read(CONFIG_PATH.toPath());
             assert tag != null;
 
             this.accessToken = tag.getString("accessToken");
@@ -51,7 +51,7 @@ public class Config {
 
         try {
             var _ignored = CONFIG_PATH.getParentFile().mkdirs();
-            NbtIo.write(tag, CONFIG_PATH);
+            NbtIo.write(tag, CONFIG_PATH.toPath());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
