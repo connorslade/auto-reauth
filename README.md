@@ -1,4 +1,4 @@
-# auto-reauth [![build](https://github.com/Basicprogrammer10/auto-reauth/actions/workflows/build.yml/badge.svg)](https://github.com/Basicprogrammer10/auto-reauth/actions/workflows/build.yml) ![GitHub Release](https://img.shields.io/github/v/release/Basicprogrammer10/auto-reauth) ![Modrinth Downloads](https://img.shields.io/modrinth/dt/lab8OplF)
+# auto-reauth [![build](https://github.com/Basicprogrammer10/auto-reauth/actions/workflows/build.yml/badge.svg)](https://github.com/Basicprogrammer10/auto-reauth/actions/workflows/build.yml) ![GitHub Release](https://img.shields.io/github/v/release/Basicprogrammer10/auto-reauth) ![Downloads](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fconnorcode.com%2Fapi%2Fdownloads%3Fgithub%3DBasicprogrammer10%252Fauto-reauth%26modrinth%3Dlab8OplF%26curseforge%3D977807&query=%24%5B'total-human'%5D&label=downloads&color=limegreen)
 
 Requires: <kbd>[Minecraft 1.20.4](https://minecraft.wiki/w/Java_Edition_1.20.4)</kbd> <kbd>[Fabric API](https://modrinth.com/mod/fabric-api/version/0.96.3+1.20.4)</kbd> <kbd>[Mod Menu](https://modrinth.com/mod/modmenu/version/9.0.0)</kbd>
 
