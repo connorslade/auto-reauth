@@ -1,6 +1,5 @@
 package com.connorcode.autoreauth.gui;
 
-import com.connorcode.autoreauth.Main;
 import com.connorcode.autoreauth.auth.AuthUtils;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.network.ServerAddress;
