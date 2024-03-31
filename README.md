@@ -1,6 +1,6 @@
 # auto-reauth [![build](https://github.com/Basicprogrammer10/auto-reauth/actions/workflows/build.yml/badge.svg)](https://github.com/Basicprogrammer10/auto-reauth/actions/workflows/build.yml) ![GitHub Release](https://img.shields.io/github/v/release/Basicprogrammer10/auto-reauth) ![Modrinth Downloads](https://img.shields.io/modrinth/dt/lab8OplF)
 
-Requires: <kbd>[Minecraft 1.20.4](https://minecraft.wiki/w/Java_Edition_1.20.4)</kbd> <kbd>[Fabric API](https://modrinth.com/mod/fabric-api/version/0.96.3+1.20.4)</kbd> <kbd>[Mod Menu](https://modrinth.com/mod/modmenu/version/9.0.0)</kbd>
+Requires: <kbd>[Minecraft 1.20.2](https://minecraft.wiki/w/Java_Edition_1.20.2)</kbd> <kbd>[Fabric API](https://modrinth.com/mod/fabric-api/version/0.91.6+1.20.2)</kbd> <kbd>[Mod Menu](https://modrinth.com/mod/modmenu/version/8.0.1)</kbd>
 
 This is a mod that automatically re-authenticates your session when it expires.
 Without this mod, you need to restart your game every time your session expires (about every day).
