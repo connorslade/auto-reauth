@@ -35,6 +35,7 @@
   "custom": {
     "modmenu": {
       "links": {
+        "Source Code": "https://github.com/Basicprogrammer10/auto-reauth",
         "My Website": "https://connorcode.com"
       }
     }
