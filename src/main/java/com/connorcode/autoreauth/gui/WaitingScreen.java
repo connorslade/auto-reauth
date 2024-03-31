@@ -1,6 +1,6 @@
 package com.connorcode.autoreauth.gui;
 
-import com.connorcode.autoreauth.AutoReauth;
+import com.connorcode.autoreauth.Main;
 import com.connorcode.autoreauth.auth.AuthUtils;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
@@ -9,8 +9,8 @@ import net.minecraft.client.network.ServerInfo;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 
-import static com.connorcode.autoreauth.AutoReauth.authStatus;
-import static com.connorcode.autoreauth.Common.tickAuthStatus;
+import static com.connorcode.autoreauth.Main.authStatus;
+import static com.connorcode.autoreauth.Reauth.tickAuthStatus;
 
 public class WaitingScreen extends Screen {
     Screen parent;
@@ -36,13 +36,13 @@ public class WaitingScreen extends Screen {
 
     @Override
     public void close() {
-        AutoReauth.client.setScreen(this.parent);
+        Main.client.setScreen(this.parent);
     }
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
-        var txt = AutoReauth.client.textRenderer;
+        var txt = Main.client.textRenderer;
 
         var title = Text.literal("AutoReauth").fillStyle(Style.EMPTY.withBold(true));
         context.drawCenteredTextWithShadow(txt, title, this.width / 2, 10, 0xFFFFFF);

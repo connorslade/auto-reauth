@@ -1,6 +1,6 @@
 package com.connorcode.autoreauth.gui;
 
-import com.connorcode.autoreauth.AutoReauth;
+import com.connorcode.autoreauth.Main;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -23,20 +23,20 @@ public class ErrorScreen extends Screen {
     @Override
     protected void init() {
         addDrawableChild(ButtonWidget.builder(Text.of("Back"), (button) -> {
-            AutoReauth.client.setScreen(parent);
+            Main.client.setScreen(parent);
         }).size(200, 20).position(this.width / 2 - 100, this.height - 30).build());
     }
 
     @Override
     public void close() {
-        AutoReauth.client.setScreen(parent);
+        Main.client.setScreen(parent);
     }
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
 
-        var txt = AutoReauth.client.textRenderer;
+        var txt = Main.client.textRenderer;
 
         var title = Text.of(this.title).getWithStyle(Style.EMPTY.withBold(true)).get(0);
         var titleWidth = txt.getWidth(title);

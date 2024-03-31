@@ -12,8 +12,8 @@ import net.minecraft.text.Text;
 
 import java.util.Objects;
 
-import static com.connorcode.autoreauth.AutoReauth.client;
-import static com.connorcode.autoreauth.AutoReauth.config;
+import static com.connorcode.autoreauth.Main.client;
+import static com.connorcode.autoreauth.Main.config;
 
 public class Commands {
     public static void register(CommandDispatcher<FabricClientCommandSource> dispatcher, CommandRegistryAccess registryAccess) {

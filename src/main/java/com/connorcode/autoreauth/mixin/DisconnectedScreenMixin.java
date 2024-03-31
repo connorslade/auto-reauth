@@ -9,8 +9,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import static com.connorcode.autoreauth.Common.refreshAuthStatus;
-import static com.connorcode.autoreauth.Common.renderAuthStatus;
+import static com.connorcode.autoreauth.Reauth.refreshAuthStatus;
+import static com.connorcode.autoreauth.Reauth.renderAuthStatus;
 
 @Mixin(DisconnectedScreen.class)
 public class DisconnectedScreenMixin extends Screen {

@@ -1,6 +1,6 @@
 package com.connorcode.autoreauth.gui;
 
-import com.connorcode.autoreauth.AutoReauth;
+import com.connorcode.autoreauth.Main;
 import com.connorcode.autoreauth.auth.MicrosoftAuth;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.DrawContext;
@@ -16,8 +16,8 @@ import net.minecraft.util.Formatting;
 import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 
-import static com.connorcode.autoreauth.AutoReauth.config;
-import static com.connorcode.autoreauth.AutoReauth.log;
+import static com.connorcode.autoreauth.Main.config;
+import static com.connorcode.autoreauth.Main.log;
 
 public class ConfigScreen extends Screen {
     private final GridWidget grid = new GridWidget().setColumnSpacing(5);
@@ -36,7 +36,7 @@ public class ConfigScreen extends Screen {
 
         adder.add(ButtonWidget.builder(Text.of("Save & Back"), (button) -> {
             config.save();
-            AutoReauth.client.setScreen(this.parent);
+            Main.client.setScreen(this.parent);
         }).build(), positioner);
         adder.add(ButtonWidget.builder(Text.of(config.tokenExists() ? "Login Again" : "Login"), (button) -> MicrosoftAuth.getCode(semaphore)
                 .thenCompose(code -> new MicrosoftAuth().getAccessToken(code)).thenAccept(access -> {
@@ -45,7 +45,7 @@ public class ConfigScreen extends Screen {
                     config.save();
                 }).exceptionally(e -> {
                     log.error("Error re-authenticating", e);
-                    RenderSystem.recordRenderCall(() -> AutoReauth.client.setScreen(new ErrorScreen(this, "Error re-authenticating", e.toString())));
+                    RenderSystem.recordRenderCall(() -> Main.client.setScreen(new ErrorScreen(this, "Error re-authenticating", e.toString())));
                     return null;
                 })).build(), positioner);
         adder.add(ButtonWidget.builder(Text.of("D"), (button) -> {
@@ -60,13 +60,13 @@ public class ConfigScreen extends Screen {
     @Override
     public void close() {
         semaphore.release();
-        AutoReauth.client.setScreen(this.parent);
+        Main.client.setScreen(this.parent);
     }
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
-        var txt = AutoReauth.client.textRenderer;
+        var txt = Main.client.textRenderer;
         var height = textRenderer.fontHeight + textRenderer.fontHeight / 3;
         var y = 40;
 
@@ -75,9 +75,9 @@ public class ConfigScreen extends Screen {
 
         var textLines = new ArrayList<Text>();
         textLines.add(Text.literal("Config: ")
-                .append(Text.literal(AutoReauth.config.tokenExists() ? "Present" : "Not present")
-                        .fillStyle(Style.EMPTY.withColor(AutoReauth.config.tokenExists() ? 0x00FF00 : 0xFF0000))));
-        if (!AutoReauth.config.tokenExists())
+                .append(Text.literal(Main.config.tokenExists() ? "Present" : "Not present")
+                        .fillStyle(Style.EMPTY.withColor(Main.config.tokenExists() ? 0x00FF00 : 0xFF0000))));
+        if (!Main.config.tokenExists())
             textLines.add(Text.literal("Because config is not present, you will need to login."));
         textLines.add(Text.literal("Warning: Tokens are stored in your config folder.")
                 .fillStyle(Style.EMPTY.withColor(Formatting.GOLD)));

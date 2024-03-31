@@ -7,7 +7,7 @@ import net.minecraft.nbt.NbtIo;
 import java.io.File;
 import java.io.IOException;
 
-import static com.connorcode.autoreauth.AutoReauth.directory;
+import static com.connorcode.autoreauth.Main.directory;
 
 public class Config {
     public static final File CONFIG_PATH = new File(directory.toFile(), "config.nbt");

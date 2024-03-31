@@ -21,7 +21,7 @@ import net.minecraft.screen.ScreenTexts;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
-import static com.connorcode.autoreauth.AutoReauth.*;
+import static com.connorcode.autoreauth.Main.*;
 
 public class AuthUtils {
 
