@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import java.nio.file.Path;
 import java.util.concurrent.CompletableFuture;
 
-public class AutoReauth implements ClientModInitializer {
+public class Main implements ClientModInitializer {
     public static Logger log = LogUtils.getLogger();
     public static MinecraftClient client = MinecraftClient.getInstance();
     public static final Path directory = client.runDirectory.toPath().resolve("config/auto-reauth");

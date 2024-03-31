@@ -6,7 +6,7 @@ import net.minecraft.text.Text;
 import java.math.BigInteger;
 import java.util.UUID;
 
-import static com.connorcode.autoreauth.AutoReauth.client;
+import static com.connorcode.autoreauth.Main.client;
 
 public class Misc {
     // Modified from https://stackoverflow.com/a/30760478/12471934
@@ -18,7 +18,8 @@ public class Misc {
     }
 
     public static void sendToast(String title, String message) {
-        client.getToastManager().add(new SystemToast(SystemToast.Type.TUTORIAL_HINT, Text.of(title), Text.of(message)));
+        client.getToastManager()
+                .add(new SystemToast(SystemToast.Type.PERIODIC_NOTIFICATION, Text.of(title), Text.of(message)));
     }
 
     public static String randomString(int length) {

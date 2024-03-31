@@ -17,7 +17,7 @@
   "environment": "client",
   "entrypoints": {
     "client": [
-      "com.connorcode.autoreauth.AutoReauth"
+      "com.connorcode.autoreauth.Main"
     ],
     "modmenu": [
       "com.connorcode.autoreauth.ModMenu"

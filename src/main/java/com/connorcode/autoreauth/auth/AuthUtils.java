@@ -4,8 +4,8 @@ import com.mojang.authlib.exceptions.AuthenticationException;
 import com.mojang.authlib.yggdrasil.YggdrasilMinecraftSessionService;
 import net.minecraft.client.QuickPlay;
 import net.minecraft.client.QuickPlayLogger;
-import net.minecraft.client.gui.screen.ConnectScreen;
 import net.minecraft.client.gui.screen.TitleScreen;
+import net.minecraft.client.gui.screen.multiplayer.ConnectScreen;
 import net.minecraft.client.network.ServerAddress;
 import net.minecraft.client.network.ServerInfo;
 import net.minecraft.client.network.SocialInteractionsManager;
@@ -21,7 +21,7 @@ import net.minecraft.screen.ScreenTexts;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
-import static com.connorcode.autoreauth.AutoReauth.*;
+import static com.connorcode.autoreauth.Main.*;
 
 public class AuthUtils {
 

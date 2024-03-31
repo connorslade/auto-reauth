@@ -13,9 +13,9 @@ import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
-import static com.connorcode.autoreauth.AutoReauth.*;
+import static com.connorcode.autoreauth.Main.*;
 
-public class Common {
+public class Reauth {
     static final boolean METEOR_LOADED = FabricLoader.getInstance().isModLoaded("meteor-client");
 
     public static void renderAuthStatus(DrawContext context) {

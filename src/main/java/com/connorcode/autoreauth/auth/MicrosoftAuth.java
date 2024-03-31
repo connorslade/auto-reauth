@@ -33,8 +33,8 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
-import static com.connorcode.autoreauth.AutoReauth.config;
-import static com.connorcode.autoreauth.AutoReauth.log;
+import static com.connorcode.autoreauth.Main.config;
+import static com.connorcode.autoreauth.Main.log;
 
 public class MicrosoftAuth {
     // Note: Im using the client ID from ReAuth it would take like a week to get my own approved for minecraft services
