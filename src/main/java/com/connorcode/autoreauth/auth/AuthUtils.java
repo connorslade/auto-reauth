@@ -66,7 +66,7 @@ public class AuthUtils {
         client.ensureAbuseReportContext(ReporterEnvironment.ofThirdPartyServer(info != null ? info.address : address.getAddress()));
         client.getQuickPlayLogger().setWorld(QuickPlayLogger.WorldType.MULTIPLAYER, info.address, info.name);
         client.setScreen(connectScreen);
-        connectScreen.connect(client, address, info);
+        connectScreen.connect(client, address, info, null);
     }
 
     public enum AuthStatus {

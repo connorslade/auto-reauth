@@ -25,4 +25,4 @@ mutable field net/minecraft/client/realms/RealmsAvailability currentFuture Ljava
 
 ## AuthUtils::connectToServer ##
 accessible method net/minecraft/client/gui/screen/multiplayer/ConnectScreen <init> (Lnet/minecraft/client/gui/screen/Screen;Lnet/minecraft/text/Text;)V
-accessible method net/minecraft/client/gui/screen/multiplayer/ConnectScreen connect (Lnet/minecraft/client/MinecraftClient;Lnet/minecraft/client/network/ServerAddress;Lnet/minecraft/client/network/ServerInfo;)V
+accessible method net/minecraft/client/gui/screen/multiplayer/ConnectScreen connect (Lnet/minecraft/client/MinecraftClient;Lnet/minecraft/client/network/ServerAddress;Lnet/minecraft/client/network/ServerInfo;Lnet/minecraft/client/network/CookieStorage;)V

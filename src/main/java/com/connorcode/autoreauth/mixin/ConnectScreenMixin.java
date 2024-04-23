@@ -16,7 +16,7 @@ import static com.connorcode.autoreauth.Main.authStatus;
 
 @Mixin(ConnectScreen.class)
 public class ConnectScreenMixin {
-    @Inject(at = @At("HEAD"), method = "connect(Lnet/minecraft/client/gui/screen/Screen;Lnet/minecraft/client/MinecraftClient;Lnet/minecraft/client/network/ServerAddress;Lnet/minecraft/client/network/ServerInfo;Z)V", cancellable = true)
+    @Inject(at = @At("HEAD"), method = "connect(Lnet/ minecraft/client/gui/screen/Screen;Lnet/minecraft/client/MinecraftClient;Lnet/minecraft/client/network/ServerAddress;Lnet/minecraft/client/network/ServerInfo;Z)V", cancellable = true)
     private static void onConnect(Screen screen, MinecraftClient client, ServerAddress address, ServerInfo info, boolean quickPlay, CallbackInfo ci) {
         if (authStatus.getNow(AuthUtils.AuthStatus.Invalid).isOnline()) return;
         client.setScreen(new ServerWaitingScreen(client.currentScreen, address, info, quickPlay));
