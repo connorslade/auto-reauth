@@ -16,8 +16,7 @@ import net.minecraft.util.Formatting;
 import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 
-import static com.connorcode.autoreauth.Main.config;
-import static com.connorcode.autoreauth.Main.log;
+import static com.connorcode.autoreauth.Main.*;
 
 public class ConfigScreen extends Screen {
     private final GridWidget grid = new GridWidget().setColumnSpacing(5);
@@ -43,6 +42,7 @@ public class ConfigScreen extends Screen {
                     config.accessToken = access.accessToken();
                     config.refreshToken = access.refreshToken();
                     config.save();
+                    authStatus = null;
                 }).exceptionally(e -> {
                     log.error("Error re-authenticating", e);
                     RenderSystem.recordRenderCall(() -> Main.client.setScreen(new ErrorScreen(this, "Error re-authenticating", e.toString())));
