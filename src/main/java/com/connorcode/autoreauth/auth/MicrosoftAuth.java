@@ -5,16 +5,18 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.sun.net.httpserver.HttpServer;
-import net.minecraft.client.session.Session;
+import net.minecraft.client.util.Session;
 import net.minecraft.util.JsonHelper;
 import net.minecraft.util.Util;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
@@ -26,6 +28,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
@@ -310,7 +313,7 @@ public class MicrosoftAuth {
                 var id = getIfPresent(json, "id", ctx).getAsString();
                 var name = getIfPresent(json, "name", ctx).getAsString();
 
-                return new Session(name, Misc.parseUUID(id), minecraftAuth.accessToken, Optional.empty(), Optional.empty(), Session.AccountType.MSA);
+                return new Session(name, id, minecraftAuth.accessToken, Optional.empty(), Optional.empty(), Session.AccountType.MSA);
             } catch (IOException e) {
                 throw new AuthException("Failed to create session", e);
             }

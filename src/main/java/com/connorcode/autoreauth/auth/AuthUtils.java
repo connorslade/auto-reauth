@@ -9,13 +9,12 @@ import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.client.network.ServerAddress;
 import net.minecraft.client.network.ServerInfo;
 import net.minecraft.client.network.SocialInteractionsManager;
-import net.minecraft.client.realms.RealmsAvailability;
 import net.minecraft.client.realms.RealmsClient;
 import net.minecraft.client.realms.RealmsPeriodicCheckers;
-import net.minecraft.client.session.ProfileKeys;
-import net.minecraft.client.session.Session;
-import net.minecraft.client.session.report.AbuseReportContext;
-import net.minecraft.client.session.report.ReporterEnvironment;
+import net.minecraft.client.report.AbuseReportContext;
+import net.minecraft.client.report.ReporterEnvironment;
+import net.minecraft.client.util.ProfileKeys;
+import net.minecraft.client.util.Session;
 import net.minecraft.screen.ScreenTexts;
 
 import java.util.UUID;
@@ -35,8 +34,8 @@ public class AuthUtils {
             // Thank you https://github.com/axieum/authme
             var sessionService = (YggdrasilMinecraftSessionService) client.getSessionService();
             try {
-                sessionService.joinServer(client.getSession().getUuidOrNull(), token, id);
-                var authStatus = sessionService.hasJoinedServer(session.getUsername(), id, null) != null ? AuthStatus.Online : AuthStatus.Offline;
+                sessionService.joinServer(client.getSession().getProfile(), token, id);
+                var authStatus = sessionService.hasJoinedServer(session.getProfile(), id, null) != null ? AuthStatus.Online : AuthStatus.Offline;
                 if (authStatus.isOnline()) sentToast = false;
                 log.info("Auth status: " + authStatus.getText());
                 return authStatus;
@@ -56,7 +55,6 @@ public class AuthUtils {
         client.profileKeys = ProfileKeys.create(client.userApiService, session, client.runDirectory.toPath());
         client.abuseReportContext = AbuseReportContext.create(client.abuseReportContext.environment, client.userApiService);
         client.realmsPeriodicCheckers = new RealmsPeriodicCheckers(RealmsClient.create());
-        RealmsAvailability.currentFuture = null;
     }
 
     public static void connectToServer(ServerAddress address, ServerInfo info, boolean quickPlay) {

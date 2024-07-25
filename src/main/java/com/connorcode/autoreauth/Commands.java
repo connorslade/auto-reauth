@@ -5,9 +5,9 @@ import com.mojang.authlib.exceptions.AuthenticationException;
 import com.mojang.brigadier.CommandDispatcher;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
-import net.minecraft.client.session.Session;
+import net.minecraft.client.util.Session;
 import net.minecraft.command.CommandRegistryAccess;
-import net.minecraft.network.packet.s2c.common.DisconnectS2CPacket;
+import net.minecraft.network.packet.s2c.play.DisconnectS2CPacket;
 import net.minecraft.text.Text;
 
 import java.util.Objects;
@@ -20,7 +20,7 @@ public class Commands {
         dispatcher.register(ClientCommandManager.literal("auto-reauth").requires(requirement -> config.debug)
                 .then(ClientCommandManager.literal("invalidate").executes(context -> {
                     var session = client.getSession();
-                    var newSession = new Session(session.getUsername(), session.getUuidOrNull(), "", session.getXuid(), session.getClientId(), session.getAccountType());
+                    var newSession = new Session(session.getUsername(), Objects.requireNonNull(session.getUuidOrNull()).toString(), "", session.getXuid(), session.getClientId(), session.getAccountType());
                     try {
                         AuthUtils.setSession(newSession);
                     } catch (AuthenticationException e) {

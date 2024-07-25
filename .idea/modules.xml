@@ -5,6 +5,8 @@
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/auth-reauth.iml" filepath="$PROJECT_DIR$/.idea/modules/auth-reauth.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/auth-reauth.main.iml" filepath="$PROJECT_DIR$/.idea/modules/auth-reauth.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/auth-reauth.test.iml" filepath="$PROJECT_DIR$/.idea/modules/auth-reauth.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/com.connorcode.auth-reauth.main.iml" filepath="$PROJECT_DIR$/.idea/modules/com.connorcode.auth-reauth.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/com.connorcode.auth-reauth.test.iml" filepath="$PROJECT_DIR$/.idea/modules/com.connorcode.auth-reauth.test.iml" />
     </modules>
   </component>
 </project>
