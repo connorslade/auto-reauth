@@ -73,6 +73,9 @@ public class Reauth {
     }
 
     public static void refreshAuthStatus() {
+        var now = System.currentTimeMillis();
+        if (lastUpdate + 1000 * 10 >= now && authStatus != null) return;
+        lastUpdate = now;
         authStatus = AuthUtils.getAuthStatus();
     }
 }

@@ -37,7 +37,7 @@ public class AuthUtils {
                 sessionService.joinServer(client.getSession().getProfile(), token, id);
                 var authStatus = sessionService.hasJoinedServer(session.getProfile(), id, null) != null ? AuthStatus.Online : AuthStatus.Offline;
                 if (authStatus.isOnline()) sentToast = false;
-                log.info("Auth status: " + authStatus.getText());
+                log.info("Auth status: {}", authStatus.getText());
                 return authStatus;
             } catch (AuthenticationException e) {
                 log.info("Invalid auth status");
