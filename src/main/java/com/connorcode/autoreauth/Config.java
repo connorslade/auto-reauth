@@ -6,6 +6,7 @@ import net.minecraft.nbt.NbtIo;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Optional;
 
 import static com.connorcode.autoreauth.Main.directory;
 
@@ -45,8 +46,8 @@ public class Config {
 
     public void save() {
         var tag = new NbtCompound();
-        tag.putString("accessToken", accessToken);
-        tag.putString("refreshToken", refreshToken);
+        tag.putString("accessToken", Optional.of(accessToken).orElse(""));
+        tag.putString("refreshToken", Optional.of(refreshToken).orElse(""));
         tag.putBoolean("debug", debug);
 
         try {
