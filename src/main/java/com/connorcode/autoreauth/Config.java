@@ -27,9 +27,11 @@ public class Config {
             var tag = NbtIo.read(CONFIG_PATH.toPath());
             assert tag != null;
 
-            this.accessToken = tag.getString("accessToken");
-            this.refreshToken = tag.getString("refreshToken");
             this.debug = tag.getBoolean("debug");
+            if (tag.contains("accessToken"))
+                this.accessToken = tag.getString("accessToken");
+            if (tag.contains("refreshToken"))
+                this.refreshToken = tag.getString("refreshToken");
             return true;
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -46,9 +48,11 @@ public class Config {
 
     public void save() {
         var tag = new NbtCompound();
-        tag.putString("accessToken", Optional.of(accessToken).orElse(""));
-        tag.putString("refreshToken", Optional.of(refreshToken).orElse(""));
         tag.putBoolean("debug", debug);
+        if (accessToken != null && refreshToken != null) {
+            tag.putString("accessToken", accessToken);
+            tag.putString("refreshToken", refreshToken);
+        }
 
         try {
             var _ignored = CONFIG_PATH.getParentFile().mkdirs();
