@@ -42,7 +42,10 @@ public class ConfigScreen extends Screen {
                     config.accessToken = access.accessToken();
                     config.refreshToken = access.refreshToken();
                     config.save();
+
                     authStatus = null;
+                    lastUpdate = 0;
+                    sentToast = false;
                 }).exceptionally(e -> {
                     log.error("Error re-authenticating", e);
                     RenderSystem.recordRenderCall(() -> Main.client.setScreen(new ErrorScreen(this, "Error re-authenticating", e.toString())));
