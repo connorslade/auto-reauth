@@ -47,6 +47,7 @@ public class ConfigScreen extends Screen {
                     lastUpdate = 0;
                     sentToast = false;
                 }).exceptionally(e -> {
+                    if (e.getCause() instanceof MicrosoftAuth.AbortException) return null;
                     log.error("Error re-authenticating", e);
                     RenderSystem.recordRenderCall(() -> Main.client.setScreen(new ErrorScreen(this, "Error re-authenticating", e.toString())));
                     return null;

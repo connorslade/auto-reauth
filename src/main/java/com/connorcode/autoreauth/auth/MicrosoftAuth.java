@@ -1,9 +1,12 @@
 package com.connorcode.autoreauth.auth;
 
+import com.connorcode.autoreauth.Main;
 import com.connorcode.autoreauth.Misc;
+import com.connorcode.autoreauth.gui.WaitingForLogin;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.sun.net.httpserver.HttpServer;
 import net.minecraft.client.session.Session;
 import net.minecraft.util.JsonHelper;
@@ -29,12 +32,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
-import static com.connorcode.autoreauth.Main.config;
-import static com.connorcode.autoreauth.Main.log;
+import static com.connorcode.autoreauth.Main.*;
 
 public class MicrosoftAuth {
     // Note: Im using the client ID from ReAuth it would take like a week to get my own approved for minecraft services
@@ -125,6 +128,8 @@ public class MicrosoftAuth {
             server.start();
             Util.getOperatingSystem().open(uri);
 
+            RenderSystem.recordRenderCall(() -> client.setScreen(new WaitingForLogin(client.currentScreen, semaphore, uri)));
+
             try {
                 semaphore.acquire();
             } catch (InterruptedException e) {
@@ -132,6 +137,9 @@ public class MicrosoftAuth {
             }
 
             server.stop(0);
+
+            if (finalCode.get().isEmpty()) throw new CompletionException(new AbortException());
+
             return finalCode.get();
         });
     }
@@ -343,4 +351,6 @@ public class MicrosoftAuth {
 
     public record MinecraftAuth(String accessToken) {
     }
+
+    public static class AbortException extends Exception {}
 }
