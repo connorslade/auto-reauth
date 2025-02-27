@@ -6,7 +6,6 @@ import net.minecraft.nbt.NbtIo;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Optional;
 
 import static com.connorcode.autoreauth.Main.directory;
 
@@ -53,7 +52,7 @@ public class Config {
             tag.putString("accessToken", accessToken);
             tag.putString("refreshToken", refreshToken);
         }
-        
+
         try {
             var _ignored = CONFIG_PATH.getParentFile().mkdirs();
             NbtIo.write(tag, CONFIG_PATH.toPath());

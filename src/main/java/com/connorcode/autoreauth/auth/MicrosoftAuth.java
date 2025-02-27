@@ -1,6 +1,5 @@
 package com.connorcode.autoreauth.auth;
 
-import com.connorcode.autoreauth.Main;
 import com.connorcode.autoreauth.Misc;
 import com.connorcode.autoreauth.gui.WaitingForLogin;
 import com.google.gson.JsonArray;
@@ -352,5 +351,6 @@ public class MicrosoftAuth {
     public record MinecraftAuth(String accessToken) {
     }
 
-    public static class AbortException extends Exception {}
+    public static class AbortException extends Exception {
+    }
 }

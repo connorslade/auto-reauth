@@ -22,7 +22,7 @@ public class MinecraftClientMixin {
     @Inject(at = @At("HEAD"), method = "tick")
     void onTick(CallbackInfo ci) {
         // So janky sob but it's needed for meteor client compat
-        if (this.currentScreen instanceof DisconnectedScreen 
+        if (this.currentScreen instanceof DisconnectedScreen
                 || this.currentScreen instanceof DisconnectedRealmsScreen) {
             tickAuthStatus(this.currentScreen);
         }
