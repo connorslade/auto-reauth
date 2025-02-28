@@ -40,7 +40,7 @@ public class ErrorScreen extends Screen {
 
         var title = Text.of(this.title).getWithStyle(Style.EMPTY.withBold(true)).get(0);
         var titleWidth = txt.getWidth(title);
-        context.drawText(txt, title, this.width / 2 - titleWidth / 2, 10, 0xFFFFFF, true);
+        context.drawText(txt, title, this.width / 2 - titleWidth / 2, 20, 0xFFFFFF, true);
 
         var lines = txt.wrapLines(StringVisitable.plain(this.error), 300);
         for (var i = 0; i < lines.size(); i++) {
