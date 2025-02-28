@@ -48,11 +48,13 @@ public class WaitingForLogin extends Screen {
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+        if (!semaphore.hasQueuedThreads()) Main.client.setScreen(parent);
+
         super.render(context, mouseX, mouseY, delta);
         var txt = Main.client.textRenderer;
 
         var title = Text.literal("AutoReauth").fillStyle(Style.EMPTY.withBold(true));
         context.drawCenteredTextWithShadow(txt, title, this.width / 2, 20, 0xFFFFFF);
-        context.drawWrappedText(txt, message, this.width / 4, 40, this.width / 2, 0xFFFFFF, false);
+        context.drawWrappedText(txt, message, this.width / 4, 40, this.width / 2, 0xFFFFFF, true);
     }
 }
