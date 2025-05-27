@@ -2,7 +2,6 @@ package com.connorcode.autoreauth.gui;
 
 import com.connorcode.autoreauth.Main;
 import com.connorcode.autoreauth.auth.MicrosoftAuth;
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.tooltip.Tooltip;
@@ -49,7 +48,7 @@ public class ConfigScreen extends Screen {
                 }).exceptionally(e -> {
                     if (e.getCause() instanceof MicrosoftAuth.AbortException) return null;
                     log.error("Error re-authenticating", e);
-                    RenderSystem.recordRenderCall(() -> Main.client.setScreen(new ErrorScreen(this, "Error re-authenticating", e.toString())));
+                    Main.client.setScreen(new ErrorScreen(this, "Error re-authenticating", e.toString()));
                     return null;
                 })).build(), positioner);
         adder.add(ButtonWidget.builder(Text.of("D"), (button) -> {
