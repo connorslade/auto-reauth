@@ -5,7 +5,6 @@ import com.connorcode.autoreauth.gui.WaitingForLogin;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.sun.net.httpserver.HttpServer;
 import net.minecraft.client.session.Session;
 import net.minecraft.util.JsonHelper;
@@ -127,7 +126,7 @@ public class MicrosoftAuth {
             server.start();
             Util.getOperatingSystem().open(uri);
 
-            RenderSystem.recordRenderCall(() -> client.setScreen(new WaitingForLogin(client.currentScreen, semaphore, uri)));
+            client.setScreen(new WaitingForLogin(client.currentScreen, semaphore, uri));
 
             try {
                 semaphore.acquire();

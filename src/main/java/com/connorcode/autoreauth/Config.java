@@ -26,11 +26,9 @@ public class Config {
             var tag = NbtIo.read(CONFIG_PATH.toPath());
             assert tag != null;
 
-            this.debug = tag.getBoolean("debug");
-            if (tag.contains("accessToken"))
-                this.accessToken = tag.getString("accessToken");
-            if (tag.contains("refreshToken"))
-                this.refreshToken = tag.getString("refreshToken");
+            this.debug = tag.getBoolean("debug").orElse(false);
+            this.accessToken = tag.getString("accessToken").orElse(null);
+            this.refreshToken = tag.getString("refreshToken").orElse(null);
             return true;
         } catch (IOException e) {
             throw new RuntimeException(e);

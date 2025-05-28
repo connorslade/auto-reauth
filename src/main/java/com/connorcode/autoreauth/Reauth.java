@@ -4,7 +4,6 @@ import com.connorcode.autoreauth.auth.AuthUtils;
 import com.connorcode.autoreauth.auth.MicrosoftAuth;
 import com.connorcode.autoreauth.gui.ErrorScreen;
 import com.mojang.authlib.exceptions.AuthenticationException;
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
@@ -66,7 +65,7 @@ public class Reauth {
                 Misc.sendToast("AutoReauth", String.format("Authenticated as %s!", session.getUsername()));
             }).exceptionally(e -> {
                 log.error("Error re-authenticating", e);
-                RenderSystem.recordRenderCall(() -> client.setScreen(new ErrorScreen(parent, "Error re-authenticating", e.toString())));
+                client.setScreen(new ErrorScreen(parent, "Error re-authenticating", e.toString()));
                 return null;
             });
         }
