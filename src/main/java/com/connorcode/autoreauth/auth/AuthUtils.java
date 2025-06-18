@@ -61,7 +61,7 @@ public class AuthUtils {
 
     public static void connectToServer(ServerAddress address, ServerInfo info, boolean quickPlay) {
         var connectScreen = new ConnectScreen(new TitleScreen(), quickPlay ? QuickPlay.ERROR_TITLE : ScreenTexts.CONNECT_FAILED);
-        client.disconnect();
+        client.disconnect(connectScreen, false);
         client.loadBlockList();
         client.ensureAbuseReportContext(ReporterEnvironment.ofThirdPartyServer(info != null ? info.address : address.getAddress()));
         client.getQuickPlayLogger().setWorld(QuickPlayLogger.WorldType.MULTIPLAYER, info.address, info.name);

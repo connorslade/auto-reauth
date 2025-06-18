@@ -3,7 +3,6 @@ package com.connorcode.autoreauth.mixin;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.DisconnectedScreen;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.realms.gui.screen.DisconnectedRealmsScreen;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -22,8 +21,7 @@ public class MinecraftClientMixin {
     @Inject(at = @At("HEAD"), method = "tick")
     void onTick(CallbackInfo ci) {
         // So janky sob but it's needed for meteor client compat
-        if (this.currentScreen instanceof DisconnectedScreen
-                || this.currentScreen instanceof DisconnectedRealmsScreen) {
+        if (this.currentScreen instanceof DisconnectedScreen) {
             tickAuthStatus(this.currentScreen);
         }
     }
