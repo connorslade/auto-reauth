@@ -12,6 +12,7 @@ accessible field net/minecraft/client/MinecraftClient userApiService Lcom/mojang
 accessible field net/minecraft/client/MinecraftClient authenticationService Lcom/mojang/authlib/yggdrasil/YggdrasilAuthenticationService;
 accessible field net/minecraft/client/session/report/AbuseReportContext environment Lnet/minecraft/client/session/report/ReporterEnvironment;
 accessible field net/minecraft/client/realms/RealmsAvailability currentFuture Ljava/util/concurrent/CompletableFuture;
+accessible field net/minecraft/client/realms/RealmsClient instance Lnet/minecraft/client/realms/RealmsClient;
 
 mutable field net/minecraft/client/MinecraftClient session Lnet/minecraft/client/session/Session;
 mutable field net/minecraft/client/MinecraftClient splashTextLoader Lnet/minecraft/client/resource/SplashTextResourceSupplier;
@@ -22,6 +23,8 @@ mutable field net/minecraft/client/MinecraftClient abuseReportContext Lnet/minec
 mutable field net/minecraft/client/MinecraftClient realmsPeriodicCheckers Lnet/minecraft/client/realms/RealmsPeriodicCheckers;
 mutable field net/minecraft/client/MinecraftClient userApiService Lcom/mojang/authlib/minecraft/UserApiService;
 mutable field net/minecraft/client/realms/RealmsAvailability currentFuture Ljava/util/concurrent/CompletableFuture;
+
+accessible method net/minecraft/client/realms/RealmsClient <init> (Ljava/lang/String;Ljava/lang/String;Lnet/minecraft/client/MinecraftClient;)V
 
 ## AuthUtils::connectToServer ##
 accessible method net/minecraft/client/gui/screen/multiplayer/ConnectScreen <init> (Lnet/minecraft/client/gui/screen/Screen;Lnet/minecraft/text/Text;)V

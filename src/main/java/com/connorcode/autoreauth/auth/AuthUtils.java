@@ -55,8 +55,11 @@ public class AuthUtils {
         client.socialInteractionsManager = new SocialInteractionsManager(client, client.userApiService);
         client.profileKeys = ProfileKeys.create(client.userApiService, session, client.runDirectory.toPath());
         client.abuseReportContext = AbuseReportContext.create(client.abuseReportContext.environment, client.userApiService);
-        client.realmsPeriodicCheckers = new RealmsPeriodicCheckers(RealmsClient.create());
         RealmsAvailability.currentFuture = null;
+
+        var realmsClient = new RealmsClient(session.getSessionId(), session.getUsername(), client);
+        RealmsClient.instance = realmsClient;
+        client.realmsPeriodicCheckers = new RealmsPeriodicCheckers(realmsClient);
     }
 
     public static void connectToServer(ServerAddress address, ServerInfo info, boolean quickPlay) {

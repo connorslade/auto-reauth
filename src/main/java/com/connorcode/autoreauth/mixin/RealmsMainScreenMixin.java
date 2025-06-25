@@ -45,12 +45,10 @@ public class RealmsMainScreenMixin extends Screen {
     @Inject(at = @At("HEAD"), method = "method_52634(Lnet/minecraft/client/realms/RealmsAvailability$Info;)V", cancellable = true)
     void onRealmsAvailabilityInfo(RealmsAvailability.Info info, CallbackInfo ci) {
         if (info.type() != RealmsAvailability.Type.AUTHENTICATION_ERROR) return;
-        ci.cancel();
 
-        if (!authStatus.getNow(AuthUtils.AuthStatus.Invalid).isOnline()) {
-            log.info("Invalid Realms auth, re-authenticating...");
-            authStatus = CompletableFuture.completedFuture(AuthUtils.AuthStatus.Invalid);
-            Main.client.setScreen(new RealmsWaitingScreen(new TitleScreen()));
-        }
+        log.info("Invalid Realms auth, re-authenticating...");
+        authStatus = CompletableFuture.completedFuture(AuthUtils.AuthStatus.Invalid);
+        Main.client.setScreen(new RealmsWaitingScreen(new TitleScreen()));
+        ci.cancel();
     }
 }
