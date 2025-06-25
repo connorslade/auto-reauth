@@ -79,7 +79,7 @@ public class ConfigScreen extends Screen {
         var textLines = new ArrayList<Text>();
         textLines.add(Text.literal("Config: ")
                 .append(Text.literal(Main.config.tokenExists() ? "Present" : "Not present")
-                        .fillStyle(Style.EMPTY.withColor(Main.config.tokenExists() ? 0x00FF00 : 0xFF0000))));
+                        .fillStyle(Style.EMPTY.withColor(Main.config.tokenExists() ? 0xFF00FF00 : 0xFFFF0000))));
         if (!Main.config.tokenExists())
             textLines.add(Text.literal("Because config is not present, you will need to login."));
         textLines.add(Text.literal("Warning: Tokens are stored in your config folder.")
@@ -95,7 +95,7 @@ public class ConfigScreen extends Screen {
 
         var maxWidth = textLines.stream().mapToInt(txt::getWidth).max().orElse(0);
         for (var line : textLines) {
-            context.drawText(txt, line, (this.width - maxWidth) / 2, y, 0xFFFFFF, true);
+            context.drawText(txt, line.asOrderedText(), (this.width - maxWidth) / 2, y, 0xFFFFFFFF, true);
             y += height;
         }
     }

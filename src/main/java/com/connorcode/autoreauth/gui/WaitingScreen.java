@@ -27,7 +27,7 @@ public abstract class WaitingScreen extends Screen {
         var txt = Main.client.textRenderer;
 
         var title = Text.literal("AutoReauth").fillStyle(Style.EMPTY.withBold(true));
-        context.drawCenteredTextWithShadow(txt, title, this.width / 2, 20, 0xFFFFFF);
-        context.drawCenteredTextWithShadow(txt, message, this.width / 2, this.height / 2 + txt.fontHeight / 2, 0xFFFFFF);
+        context.drawCenteredTextWithShadow(txt, title, this.width / 2, 20, 0xFFFFFFFF);
+        context.drawCenteredTextWithShadow(txt, message, this.width / 2, this.height / 2 + txt.fontHeight / 2, 0xFFFFFFFF);
     }
 }
