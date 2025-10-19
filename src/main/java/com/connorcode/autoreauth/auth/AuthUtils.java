@@ -1,6 +1,7 @@
 package com.connorcode.autoreauth.auth;
 
 import com.mojang.authlib.exceptions.AuthenticationException;
+import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import com.mojang.authlib.yggdrasil.YggdrasilMinecraftSessionService;
 import net.minecraft.client.QuickPlay;
 import net.minecraft.client.QuickPlayLogger;
@@ -33,7 +34,7 @@ public class AuthUtils {
             var id = UUID.randomUUID().toString();
 
             // Thank you https://github.com/axieum/authme
-            var sessionService = (YggdrasilMinecraftSessionService) client.getSessionService();
+            var sessionService = (YggdrasilMinecraftSessionService) client.getApiServices().sessionService();
             try {
                 sessionService.joinServer(client.getSession().getUuidOrNull(), token, id);
                 var authStatus = sessionService.hasJoinedServer(session.getUsername(), id, null) != null ? AuthStatus.Online : AuthStatus.Offline;
@@ -51,7 +52,8 @@ public class AuthUtils {
         log.info("Overwriting session with {} ({})", session.getUsername(), session.getUuidOrNull());
         client.session = session;
         client.splashTextLoader.session = session;
-        client.userApiService = client.authenticationService.createUserApiService(session.getAccessToken());
+        YggdrasilAuthenticationService yggdrasilAuthenticationService = client.isOfflineDeveloperMode() ? YggdrasilAuthenticationService.createOffline(client.getNetworkProxy()) : new YggdrasilAuthenticationService(client.getNetworkProxy());
+        client.userApiService = yggdrasilAuthenticationService.createUserApiService(session.getAccessToken());
         client.socialInteractionsManager = new SocialInteractionsManager(client, client.userApiService);
         client.profileKeys = ProfileKeys.create(client.userApiService, session, client.runDirectory.toPath());
         client.abuseReportContext = AbuseReportContext.create(client.abuseReportContext.environment, client.userApiService);

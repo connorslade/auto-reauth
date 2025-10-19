@@ -316,7 +316,7 @@ public class MicrosoftAuth {
                 var id = getIfPresent(json, "id", ctx).getAsString();
                 var name = getIfPresent(json, "name", ctx).getAsString();
 
-                return new Session(name, Misc.parseUUID(id), minecraftAuth.accessToken, Optional.empty(), Optional.empty(), Session.AccountType.MSA);
+                return new Session(name, Misc.parseUUID(id), minecraftAuth.accessToken, Optional.empty(), Optional.empty());
             } catch (IOException e) {
                 throw new AuthException("Failed to create session", e);
             }

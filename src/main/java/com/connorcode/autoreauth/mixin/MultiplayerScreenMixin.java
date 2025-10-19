@@ -23,8 +23,9 @@ public class MultiplayerScreenMixin extends Screen {
         refreshAuthStatus();
     }
 
-    @Inject(at = @At("TAIL"), method = "render")
-    private void render(DrawContext context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
+    @Override
+    public void render(DrawContext context, int mouseX, int mouseY, float delta){
+        super.render(context, mouseX, mouseY, delta);
         renderAuthStatus(context);
     }
 
