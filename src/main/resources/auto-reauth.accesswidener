@@ -9,7 +9,6 @@ accessible field net/minecraft/client/MinecraftClient profileKeys Lnet/minecraft
 accessible field net/minecraft/client/MinecraftClient abuseReportContext Lnet/minecraft/client/session/report/AbuseReportContext;
 accessible field net/minecraft/client/MinecraftClient realmsPeriodicCheckers Lnet/minecraft/client/realms/RealmsPeriodicCheckers;
 accessible field net/minecraft/client/MinecraftClient userApiService Lcom/mojang/authlib/minecraft/UserApiService;
-accessible field net/minecraft/client/MinecraftClient authenticationService Lcom/mojang/authlib/yggdrasil/YggdrasilAuthenticationService;
 accessible field net/minecraft/client/session/report/AbuseReportContext environment Lnet/minecraft/client/session/report/ReporterEnvironment;
 accessible field net/minecraft/client/realms/RealmsAvailability currentFuture Ljava/util/concurrent/CompletableFuture;
 accessible field net/minecraft/client/realms/RealmsClient instance Lnet/minecraft/client/realms/RealmsClient;
