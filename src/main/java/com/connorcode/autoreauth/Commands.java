@@ -20,7 +20,7 @@ public class Commands {
         dispatcher.register(ClientCommandManager.literal("auto-reauth").requires(requirement -> config.debug)
                 .then(ClientCommandManager.literal("invalidate").executes(context -> {
                     var session = client.getSession();
-                    var newSession = new Session(session.getUsername(), session.getUuidOrNull(), "", session.getXuid(), session.getClientId(), session.getAccountType());
+                    var newSession = new Session(session.getUsername(), session.getUuidOrNull(), "", session.getXuid(), session.getClientId());
                     try {
                         AuthUtils.setSession(newSession);
                     } catch (AuthenticationException e) {
