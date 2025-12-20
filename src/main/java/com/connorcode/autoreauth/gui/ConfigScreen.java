@@ -82,9 +82,6 @@ public class ConfigScreen extends Screen {
                         .fillStyle(Style.EMPTY.withColor(Main.config.tokenExists() ? 0xFF00FF00 : 0xFFFF0000))));
         if (!Main.config.tokenExists())
             textLines.add(Text.literal("Because config is not present, you will need to login."));
-        textLines.add(Text.literal("Warning: Tokens are stored in your config folder.")
-                .fillStyle(Style.EMPTY.withColor(Formatting.GOLD)));
-
 
         if (config.debug) {
             textLines.add(Text.literal(""));

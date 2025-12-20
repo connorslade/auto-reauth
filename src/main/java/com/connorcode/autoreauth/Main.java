@@ -13,9 +13,8 @@ import java.util.concurrent.CompletableFuture;
 public class Main implements ClientModInitializer {
     public static Logger log = LogUtils.getLogger();
     public static MinecraftClient client = MinecraftClient.getInstance();
-    public static final Path directory = client.runDirectory.toPath().resolve("config/auto-reauth");
 
-    public static Config config = new Config();
+    public static Config config = new Config(Path.of(System.getProperty("user.home")).resolve(".auto-reauth"));
     public static CompletableFuture<AuthUtils.AuthStatus> authStatus;
     public static long lastUpdate = System.currentTimeMillis();
     public static boolean sentToast = false;
