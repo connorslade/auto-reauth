@@ -11,9 +11,9 @@ import java.nio.file.Path;
 import java.util.concurrent.CompletableFuture;
 
 public class Main implements ClientModInitializer {
+    public static final Path directory = Path.of(System.getProperty("user.home")).resolve(".auto-reauth");
     public static Logger log = LogUtils.getLogger();
     public static MinecraftClient client = MinecraftClient.getInstance();
-    public static final Path directory = client.runDirectory.toPath().resolve("config/auto-reauth");
 
     public static Config config = new Config();
     public static CompletableFuture<AuthUtils.AuthStatus> authStatus;

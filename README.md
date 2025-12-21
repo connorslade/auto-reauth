@@ -15,7 +15,7 @@ Here you can click "Login" to be redirected to the Microsoft login page, after s
 Now, anytime you open the multiplayer menu, auto reauth will check your session status, and re-authenticate if necessary.
 The tokens may expire after some time (like 90 days) so if you start having issues with the mod, try logging in.
 
-Do note that using this mod will store your authentication tokens in your config folder (config/auto-reauth/config.nbt).
+Do note that using this mod will store your authentication tokens in your home folder (~/.auto-reauth/config.nbt).
 So just be careful about that.
 
 ## References

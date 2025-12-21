@@ -4,26 +4,27 @@ import com.connorcode.autoreauth.auth.MicrosoftAuth;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtIo;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import static com.connorcode.autoreauth.Main.directory;
 
 public class Config {
-    public static final File CONFIG_PATH = new File(directory.toFile(), "config.nbt");
-    public String accessToken = null;
-    public String refreshToken = null;
+    private static final Path CONFIG_PATH = directory.resolve("config.nbt");
+
     public boolean debug = false;
+    public String accessToken;
+    public String refreshToken;
 
     public Config() {
-
     }
 
     public boolean load() {
-        if (!CONFIG_PATH.exists()) return false;
+        if (Files.notExists(CONFIG_PATH)) return false;
 
         try {
-            var tag = NbtIo.read(CONFIG_PATH.toPath());
+            var tag = NbtIo.read(CONFIG_PATH);
             assert tag != null;
 
             this.debug = tag.getBoolean("debug").orElse(false);
@@ -52,8 +53,8 @@ public class Config {
         }
 
         try {
-            var _ignored = CONFIG_PATH.getParentFile().mkdirs();
-            NbtIo.write(tag, CONFIG_PATH.toPath());
+            Files.createDirectories(CONFIG_PATH.getParent());
+            NbtIo.write(tag, CONFIG_PATH);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
