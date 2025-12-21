@@ -65,7 +65,7 @@ public class Reauth {
                 Misc.sendToast("AutoReauth", String.format("Authenticated as %s!", session.getUsername()));
             }).exceptionally(e -> {
                 log.error("Error re-authenticating", e);
-                client.setScreen(new ErrorScreen(parent, "Error re-authenticating", e.toString()));
+                client.send(() -> client.setScreen(new ErrorScreen(parent, "Error re-authenticating", e.toString())));
                 return null;
             });
         }

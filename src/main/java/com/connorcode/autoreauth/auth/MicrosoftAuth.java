@@ -126,7 +126,7 @@ public class MicrosoftAuth {
             server.start();
             Util.getOperatingSystem().open(uri);
 
-            client.setScreen(new WaitingForLogin(client.currentScreen, semaphore, uri));
+            client.send(() -> client.setScreen(new WaitingForLogin(client.currentScreen, semaphore, uri)));
 
             try {
                 semaphore.acquire();

@@ -18,8 +18,9 @@ public class Misc {
     }
 
     public static void sendToast(String title, String message) {
-        client.getToastManager()
-                .add(new SystemToast(SystemToast.Type.PERIODIC_NOTIFICATION, Text.of(title), Text.of(message)));
+        client.send(() -> client.getToastManager()
+                .add(new SystemToast(SystemToast.Type.PERIODIC_NOTIFICATION, Text.of(title), Text.of(message))));
+
     }
 
     public static String randomString(int length) {
