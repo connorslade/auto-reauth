@@ -38,9 +38,7 @@ import java.util.stream.Collectors;
 import static com.connorcode.autoreauth.Main.*;
 
 public class MicrosoftAuth {
-    // Note: Im using the client ID from ReAuth it would take like a week to get my own approved for minecraft services
-    // My client ID: de4f1d47-957d-49bf-a282-0da6cdaf8c54
-    public static final String CLIENT_ID = "e16699bb-2aa8-46da-b5e3-45cbcce29091";
+    public static final String CLIENT_ID = "de4f1d47-957d-49bf-a282-0da6cdaf8c54";
     public static final int PORT = 9090;
     public static final String REDIRECT_URI = "http://localhost:" + PORT + "/callback";
 
