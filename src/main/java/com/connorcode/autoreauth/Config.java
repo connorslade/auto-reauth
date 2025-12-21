@@ -8,14 +8,16 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import static com.connorcode.autoreauth.Main.directory;
+
 public class Config {
-    private final Path CONFIG_PATH;
+    private static final Path CONFIG_PATH = directory.resolve("config.nbt");
+
     public boolean debug = false;
     public String accessToken;
     public String refreshToken;
 
-    public Config(Path path) {
-        this.CONFIG_PATH = path.resolve("config.nbt");
+    public Config() {
     }
 
     public boolean load() {
