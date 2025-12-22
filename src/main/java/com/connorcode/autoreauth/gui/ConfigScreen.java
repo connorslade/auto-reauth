@@ -1,5 +1,6 @@
 package com.connorcode.autoreauth.gui;
 
+import com.connorcode.autoreauth.Config;
 import com.connorcode.autoreauth.Main;
 import com.connorcode.autoreauth.auth.MicrosoftAuth;
 import net.minecraft.client.gui.DrawContext;
@@ -11,6 +12,7 @@ import net.minecraft.client.gui.widget.SimplePositioningWidget;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.Pair;
 
 import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
@@ -36,10 +38,10 @@ public class ConfigScreen extends Screen {
             config.save();
             Main.client.setScreen(this.parent);
         }).build(), positioner);
-        adder.add(ButtonWidget.builder(Text.of(config.tokenExists() ? "Login Again" : "Login"), (button) -> MicrosoftAuth.getCode(semaphore)
-                .thenCompose(code -> new MicrosoftAuth().getAccessToken(code)).thenAccept(access -> {
-                    config.accessToken = access.accessToken();
-                    config.refreshToken = access.refreshToken();
+        adder.add(ButtonWidget.builder(Text.of("Login"), (button) -> MicrosoftAuth.getCode(semaphore)
+                .thenCompose(MicrosoftAuth::getAccessToken).thenCompose(access -> MicrosoftAuth.authenticate(access)
+                        .thenApply(session -> new Pair<>(access, session))).thenAccept(pair -> {
+                    config.addAccount(new Config.Account(pair.getLeft(), pair.getRight()));
                     config.save();
 
                     authStatus = null;
@@ -77,11 +79,13 @@ public class ConfigScreen extends Screen {
         context.drawCenteredTextWithShadow(txt, title, this.width / 2, 20, 0xFFFFFF);
 
         var textLines = new ArrayList<Text>();
-        textLines.add(Text.literal("Config: ")
-                .append(Text.literal(Main.config.tokenExists() ? "Present" : "Not present")
-                        .fillStyle(Style.EMPTY.withColor(Main.config.tokenExists() ? 0xFF00FF00 : 0xFFFF0000))));
-        if (!Main.config.tokenExists())
-            textLines.add(Text.literal("Because config is not present, you will need to login."));
+        if (config.accounts.isEmpty())
+            textLines.add(Text.literal("No accounts added yet."));
+        else {
+            textLines.add(Text.literal("Accounts:"));
+            for (var account : config.accounts)
+                textLines.add(Text.literal(String.format("%s (%s)", account.username(), account.uuid())));
+        }
         textLines.add(Text.literal("Warning: Tokens are stored in your home folder.")
                 .fillStyle(Style.EMPTY.withColor(Formatting.GOLD)));
 

@@ -39,6 +39,7 @@ import static com.connorcode.autoreauth.Main.*;
 
 public class MicrosoftAuth {
     public static final String CLIENT_ID = "de4f1d47-957d-49bf-a282-0da6cdaf8c54";
+
     public static final int PORT = 9090;
     public static final String REDIRECT_URI = "http://localhost:" + PORT + "/callback";
 
@@ -47,17 +48,6 @@ public class MicrosoftAuth {
     public static final URI XSTS_AUTH_URI = URI.create("https://xsts.auth.xboxlive.com/xsts/authorize");
     public static final URI MINECRAFT_AUTH_URI = URI.create("https://api.minecraftservices.com/authentication/login_with_xbox");
     public static final URI PROFILE_URI = URI.create("https://api.minecraftservices.com/minecraft/profile");
-
-    AuthProgressCallback callback;
-
-    public MicrosoftAuth(AuthProgressCallback callback) {
-        this.callback = callback;
-    }
-
-    public MicrosoftAuth() {
-        this.callback = (e) -> {
-        };
-    }
 
     static JsonElement getIfPresent(JsonObject json, String key, String context) throws AuthException {
         if (!json.has(key)) throw new AuthException(String.format("Missing key '%s' in %s", key, context), null);
@@ -144,20 +134,21 @@ public class MicrosoftAuth {
         if (config.debug) log.info(fmt, args);
     }
 
-    public CompletableFuture<Session> authenticate(String code) {
-        return getAccessToken(code).thenCompose(this::authenticateXbox).thenCompose(this::obtainXstsToken)
-                .thenCompose(this::authenticateMinecraft).thenCompose(this::createSession);
+    public static CompletableFuture<Session> authenticate(String code) {
+        return getAccessToken(code).thenCompose(MicrosoftAuth::authenticateXbox)
+                .thenCompose(MicrosoftAuth::obtainXstsToken).thenCompose(MicrosoftAuth::authenticateMinecraft)
+                .thenCompose(MicrosoftAuth::createSession);
     }
 
-    public CompletableFuture<Session> authenticate(AccessToken token) {
+    public static CompletableFuture<Session> authenticate(AccessToken token) {
         // TODO: Use access token if its still valid
-        return refreshAccessToken(token.refreshToken).thenCompose(this::authenticateXbox)
-                .thenCompose(this::obtainXstsToken).thenCompose(this::authenticateMinecraft)
-                .thenCompose(this::createSession);
+        return refreshAccessToken(token.refreshToken).thenCompose(MicrosoftAuth::authenticateXbox)
+                .thenCompose(MicrosoftAuth::obtainXstsToken).thenCompose(MicrosoftAuth::authenticateMinecraft)
+                .thenCompose(MicrosoftAuth::createSession);
     }
 
-    public CompletableFuture<AccessToken> getAccessToken(String code) {
-        this.callback.onProgress("Getting access token");
+    public static CompletableFuture<AccessToken> getAccessToken(String code) {
+        log.info("Getting access token");
         return CompletableFuture.supplyAsync(() -> {
             try {
                 var client = HttpClients.createMinimal();
@@ -180,8 +171,8 @@ public class MicrosoftAuth {
         });
     }
 
-    CompletableFuture<AccessToken> refreshAccessToken(String refreshToken) {
-        this.callback.onProgress("Getting access token");
+    static CompletableFuture<AccessToken> refreshAccessToken(String refreshToken) {
+        log.info("Refreshing access token");
         return CompletableFuture.supplyAsync(() -> {
             try {
                 var client = HttpClients.createMinimal();
@@ -204,8 +195,8 @@ public class MicrosoftAuth {
         });
     }
 
-    CompletableFuture<XboxAuth> authenticateXbox(AccessToken token) {
-        this.callback.onProgress("Authenticating Xbox");
+    static CompletableFuture<XboxAuth> authenticateXbox(AccessToken token) {
+        log.info("Authenticating Xbox");
         return CompletableFuture.supplyAsync(() -> {
             try {
                 var client = HttpClients.createMinimal();
@@ -238,8 +229,8 @@ public class MicrosoftAuth {
         });
     }
 
-    CompletableFuture<XboxAuth> obtainXstsToken(XboxAuth xboxAuth) {
-        this.callback.onProgress("Obtaining XSTS token");
+    static CompletableFuture<XboxAuth> obtainXstsToken(XboxAuth xboxAuth) {
+        log.info("Obtaining XSTS token");
         return CompletableFuture.supplyAsync(() -> {
             try {
                 var client = HttpClients.createMinimal();
@@ -271,8 +262,8 @@ public class MicrosoftAuth {
         });
     }
 
-    CompletableFuture<MinecraftAuth> authenticateMinecraft(XboxAuth xstsAuth) {
-        this.callback.onProgress("Authenticating Minecraft");
+    static CompletableFuture<MinecraftAuth> authenticateMinecraft(XboxAuth xstsAuth) {
+        log.info("Authenticating Minecraft");
         return CompletableFuture.supplyAsync(() -> {
             try {
                 var client = HttpClients.createMinimal();
@@ -297,8 +288,8 @@ public class MicrosoftAuth {
         });
     }
 
-    CompletableFuture<Session> createSession(MinecraftAuth minecraftAuth) {
-        this.callback.onProgress("Creating session");
+    static CompletableFuture<Session> createSession(MinecraftAuth minecraftAuth) {
+        log.info("Creating session");
         return CompletableFuture.supplyAsync(() -> {
             try {
                 var client = HttpClients.createMinimal();
@@ -321,9 +312,6 @@ public class MicrosoftAuth {
         });
     }
 
-    public interface AuthProgressCallback {
-        void onProgress(String message);
-    }
 
     static class AuthException extends CancellationException {
         @Nullable Throwable cause;

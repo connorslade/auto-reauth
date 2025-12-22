@@ -49,13 +49,14 @@ public class Reauth {
 
         if (status.isInvalid() && !sentToast) {
             sentToast = true;
-            if (!config.tokenExists()) {
+            var account = config.getAccount(client.session.getUuidOrNull());
+            if (account.isEmpty()) {
                 Misc.sendToast("AutoReauth", "Session expired but no login info found");
                 return;
             }
 
             Misc.sendToast("AutoReauth", "Session expired, reauthenticating...");
-            new MicrosoftAuth(s -> log.info(s)).authenticate(config.asAccessToken()).thenAccept(session -> {
+             MicrosoftAuth.authenticate(account.get().accessToken()).thenAccept(session -> {
                 try {
                     AuthUtils.setSession(session);
                 } catch (AuthenticationException e) {
