@@ -1,6 +1,7 @@
 package com.connorcode.autoreauth;
 
 import com.connorcode.autoreauth.auth.MicrosoftAuth;
+import com.mojang.authlib.GameProfile;
 import net.minecraft.client.session.Session;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtIo;
@@ -95,6 +96,10 @@ public class Config {
             tag.putString("uuid", uuid.toString());
             tag.putString("username", username);
             return tag;
+        }
+
+        public GameProfile gameProfile() {
+            return new GameProfile(uuid, username);
         }
     }
 }

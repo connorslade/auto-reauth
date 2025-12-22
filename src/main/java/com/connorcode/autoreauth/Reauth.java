@@ -56,7 +56,7 @@ public class Reauth {
             }
 
             Misc.sendToast("AutoReauth", "Session expired, reauthenticating...");
-             MicrosoftAuth.authenticate(account.get().accessToken()).thenAccept(session -> {
+            MicrosoftAuth.authenticate(account.get().accessToken()).thenAccept(session -> {
                 try {
                     AuthUtils.setSession(session);
                 } catch (AuthenticationException e) {

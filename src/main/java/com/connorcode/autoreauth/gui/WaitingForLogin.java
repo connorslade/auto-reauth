@@ -38,7 +38,8 @@ public class WaitingForLogin extends Screen {
         var adder = this.grid.createAdder(2);
         var positioner = adder.copyPositioner().alignHorizontalCenter();
 
-        adder.add(ButtonWidget.builder(Text.of("Copy Auth Link"), (button) -> Main.client.keyboard.setClipboard(redirect.toString())).build(), positioner);
+        adder.add(ButtonWidget.builder(Text.of("Copy Auth Link"), (button) -> Main.client.keyboard.setClipboard(redirect.toString()))
+                .build(), positioner);
         adder.add(ButtonWidget.builder(Text.of("Abort"), (button) -> this.close()).build(), positioner);
 
         this.grid.forEachChild(this::addDrawableChild);
