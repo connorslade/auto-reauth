@@ -56,23 +56,27 @@ public class Reauth {
             }
 
             Misc.sendToast("AutoReauth", "Session expired, reauthenticating...");
-            MicrosoftAuth.authenticate(account.get().accessToken()).thenAccept(session -> {
-                try {
-                    AuthUtils.setSession(session);
-                } catch (AuthenticationException e) {
-                    log.error("Error re-authenticating", e);
-                }
-                authStatus = AuthUtils.getAuthStatus();
-                Misc.sendToast("AutoReauth", String.format("Authenticated as %s!", session.getUsername()));
-            }).exceptionally(e -> {
-                log.error("Error re-authenticating", e);
-                client.send(() -> client.setScreen(new ErrorScreen(parent, "Error re-authenticating", e.toString())));
-                return null;
-            });
+           attemptReauth(parent, account.get());
         }
     }
 
     public static void refreshAuthStatus() {
         authStatus = AuthUtils.getAuthStatus();
+    }
+
+    public static void attemptReauth(Screen parent, Config.Account account) {
+        MicrosoftAuth.authenticate(account.accessToken()).thenAccept(session -> {
+            try {
+                AuthUtils.setSession(session);
+            } catch (AuthenticationException e) {
+                log.error("Error re-authenticating", e);
+            }
+            authStatus = AuthUtils.getAuthStatus();
+            Misc.sendToast("AutoReauth", String.format("Authenticated as %s!", session.getUsername()));
+        }).exceptionally(e -> {
+            log.error("Error re-authenticating", e);
+            client.send(() -> client.setScreen(new ErrorScreen(parent, "Error re-authenticating", e.toString())));
+            return null;
+        });
     }
 }
