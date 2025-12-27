@@ -27,7 +27,7 @@ public class DisconnectedScreenMixin extends Screen {
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
-        renderAuthStatus(context);
+        renderAuthStatus(context, mouseX, mouseY);
     }
 
     // Note: for compatibility with meteor client, the tick method is in MinecraftClientMixin

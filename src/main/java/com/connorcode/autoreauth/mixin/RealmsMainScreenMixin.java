@@ -2,7 +2,9 @@ package com.connorcode.autoreauth.mixin;
 
 import com.connorcode.autoreauth.Main;
 import com.connorcode.autoreauth.auth.AuthUtils;
+import com.connorcode.autoreauth.gui.ConfigScreen;
 import com.connorcode.autoreauth.gui.RealmsWaitingScreen;
+import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.TitleScreen;
@@ -10,10 +12,12 @@ import net.minecraft.client.realms.RealmsAvailability;
 import net.minecraft.client.realms.gui.screen.RealmsMainScreen;
 import net.minecraft.text.Text;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 import static com.connorcode.autoreauth.Main.authStatus;
@@ -22,6 +26,8 @@ import static com.connorcode.autoreauth.Reauth.*;
 
 @Mixin(RealmsMainScreen.class)
 public class RealmsMainScreenMixin extends Screen {
+    @Unique boolean hovered;
+
     protected RealmsMainScreenMixin(Text title) {
         super(title);
         throw new UnsupportedOperationException("Mixin constructor");
@@ -34,7 +40,7 @@ public class RealmsMainScreenMixin extends Screen {
 
     @Inject(at = @At("TAIL"), method = "render")
     private void render(DrawContext context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
-        renderAuthStatus(context);
+        this.hovered = renderAuthStatus(context, mouseX, mouseY);
     }
 
     @Inject(at = @At("TAIL"), method = "tick")
@@ -50,5 +56,11 @@ public class RealmsMainScreenMixin extends Screen {
         authStatus = CompletableFuture.completedFuture(AuthUtils.AuthStatus.Invalid);
         Main.client.setScreen(new RealmsWaitingScreen(new TitleScreen()));
         ci.cancel();
+    }
+
+    @Override
+    public boolean mouseClicked(Click click, boolean doubled) {
+        if (this.hovered) Objects.requireNonNull(client).setScreen(new ConfigScreen(this));
+        return super.mouseClicked(click, doubled);
     }
 }

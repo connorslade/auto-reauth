@@ -6,8 +6,10 @@ import com.connorcode.autoreauth.gui.ErrorScreen;
 import com.mojang.authlib.exceptions.AuthenticationException;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.cursor.StandardCursors;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
+import net.minecraft.client.util.math.Rect2i;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
@@ -18,7 +20,7 @@ import static com.connorcode.autoreauth.Main.*;
 public class Reauth {
     static final boolean METEOR_LOADED = FabricLoader.getInstance().isModLoaded("meteor-client");
 
-    public static void renderAuthStatus(DrawContext context) {
+    public static boolean renderAuthStatus(DrawContext context, int mouseX, int mouseY) {
         var status = authStatus.getNow(AuthUtils.AuthStatus.Unknown);
         var color = switch (status) {
             case Unknown -> Formatting.GRAY;
@@ -26,20 +28,23 @@ public class Reauth {
             case Online -> Formatting.GREEN;
         };
 
+        var txt = client.textRenderer;
         if (METEOR_LOADED && client.currentScreen instanceof MultiplayerScreen) {
             var text = Text.literal("[ ").append(Text.literal(String.valueOf(status)).formatted(color))
                     .append(Text.literal(" ]"));
-            var x = client.textRenderer.getWidth("Logged in as  " + client.getSession().getUsername()) + 3;
-            context.drawText(client.textRenderer, text, x, 3, 0xFFFFFFFF, true);
-            return;
-        }
-
-        if (status == AuthUtils.AuthStatus.Online) {
-            var text = Text.empty().append(Text.literal("Online").formatted(color))
-                    .append(" as ").append(client.getSession().getUsername());
-            context.drawText(client.textRenderer, text, 10, 10, 0xFFFFFFFF, true);
+            var x = txt.getWidth("Logged in as  " + client.getSession().getUsername()) + 3;
+            context.drawText(txt, text, x, 3, 0xFFFFFFFF, true);
+            return false;
         } else {
-            context.drawText(client.textRenderer, Text.literal(String.valueOf(status)).formatted(color), 10, 10, 0xFFFFFFFF, true);
+            var text = status == AuthUtils.AuthStatus.Online ? Text.empty()
+                    .append(Text.literal("Online").formatted(color)).append(" as ")
+                    .append(client.getSession().getUsername()) : Text.literal(String.valueOf(status)).formatted(color);
+            context.drawText(txt, text, 10, 10, 0xFFFFFFFF, true);
+
+            var bounds = new Rect2i(10, 10, txt.getWidth(text), txt.fontHeight);
+            var inBounds = bounds.contains(mouseX, mouseY);
+            if (inBounds) context.setCursor(StandardCursors.POINTING_HAND);
+            return inBounds;
         }
     }
 
