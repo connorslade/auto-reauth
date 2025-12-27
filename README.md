@@ -10,7 +10,7 @@ Without this mod, you need to restart your game every time your session expires 
 ## Usage
 
 After installing, you will need to sign in through auto reauth, so it can store your authentication tokens.
-To do this, open the mod menu find auto reauth and open the config menu.
+To do this, open the mod config screen either through Mod Menu or by clicking the account status line on the multiplayer or realms screens.
 Here you can click "Login" to be redirected to the Microsoft login page, after signing in (if everything goes well) you will be redirected to a page that says "You can close this tab now", at this point your authentication tokens are stored, and you can close the tab.
 Now, anytime you open the multiplayer menu, auto reauth will check your session status, and re-authenticate if necessary.
 The tokens may expire after some time (like 90 days) so if you start having issues with the mod, try logging in.
