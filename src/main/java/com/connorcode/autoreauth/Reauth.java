@@ -8,9 +8,10 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
-import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+
+import java.util.concurrent.CompletableFuture;
 
 import static com.connorcode.autoreauth.Main.*;
 
@@ -26,16 +27,20 @@ public class Reauth {
         };
 
         if (METEOR_LOADED && client.currentScreen instanceof MultiplayerScreen) {
-            var text = Text.literal("[ ")
-                    .append(Text.literal(String.valueOf(status)).fillStyle(Style.EMPTY.withColor(color)))
+            var text = Text.literal("[ ").append(Text.literal(String.valueOf(status)).formatted(color))
                     .append(Text.literal(" ]"));
             var x = client.textRenderer.getWidth("Logged in as  " + client.getSession().getUsername()) + 3;
             context.drawText(client.textRenderer, text, x, 3, 0xFFFFFFFF, true);
             return;
         }
 
-        var text = Text.literal(String.valueOf(status)).fillStyle(Style.EMPTY.withColor(color));
-        context.drawText(client.textRenderer, text, 10, 10, 0xFFFFFFFF, true);
+        if (status == AuthUtils.AuthStatus.Online) {
+            var text = Text.empty().append(Text.literal("Online").formatted(color))
+                    .append(" as ").append(client.getSession().getUsername());
+            context.drawText(client.textRenderer, text, 10, 10, 0xFFFFFFFF, true);
+        } else {
+            context.drawText(client.textRenderer, Text.literal(String.valueOf(status)).formatted(color), 10, 10, 0xFFFFFFFF, true);
+        }
     }
 
     public static void tickAuthStatus(Screen parent) {
@@ -56,7 +61,7 @@ public class Reauth {
             }
 
             Misc.sendToast("AutoReauth", "Session expired, reauthenticating...");
-           attemptReauth(parent, account.get());
+            attemptReauth(parent, account.get());
         }
     }
 
@@ -64,8 +69,8 @@ public class Reauth {
         authStatus = AuthUtils.getAuthStatus();
     }
 
-    public static void attemptReauth(Screen parent, Config.Account account) {
-        MicrosoftAuth.authenticate(account.accessToken()).thenAccept(session -> {
+    public static CompletableFuture<Void> attemptReauth(Screen parent, Config.Account account) {
+        return MicrosoftAuth.authenticate(account.accessToken()).thenAccept(session -> {
             try {
                 AuthUtils.setSession(session);
             } catch (AuthenticationException e) {

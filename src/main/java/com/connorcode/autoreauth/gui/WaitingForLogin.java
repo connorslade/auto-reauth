@@ -8,6 +8,7 @@ import net.minecraft.client.gui.widget.GridWidget;
 import net.minecraft.client.gui.widget.SimplePositioningWidget;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 
 import java.net.URI;
 import java.util.concurrent.Semaphore;
@@ -54,8 +55,8 @@ public class WaitingForLogin extends Screen {
         super.render(context, mouseX, mouseY, delta);
         var txt = Main.client.textRenderer;
 
-        var title = Text.literal("AutoReauth").fillStyle(Style.EMPTY.withBold(true));
+        var title = Text.literal("AutoReauth").formatted(Formatting.BOLD);
         context.drawCenteredTextWithShadow(txt, title, this.width / 2, 20, 0xFFFFFFFF);
-        context.drawWrappedText(txt, message, this.width / 4, 40, 128, 0xFFFFFFFF, true);
+        context.drawWrappedText(txt, message, this.width / 2 - 128 / 2, 40, 128, 0xFFFFFFFF, true);
     }
 }

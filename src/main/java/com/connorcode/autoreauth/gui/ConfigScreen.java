@@ -19,6 +19,7 @@ import net.minecraft.util.Pair;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Semaphore;
 
 import static com.connorcode.autoreauth.Main.*;
@@ -33,6 +34,7 @@ public class ConfigScreen extends Screen {
 
     Screen parent;
     Semaphore semaphore = new Semaphore(0);
+    CompletableFuture<Void> reauth;
 
     public ConfigScreen(Screen screen) {
         super(Text.of("AutoReauth Config"));
@@ -50,11 +52,15 @@ public class ConfigScreen extends Screen {
 
         this.switchButton = footerTop.add(ButtonWidget.builder(Text.of("Switch"), (button) -> {
             var selected = this.accountList.getSelectedOrNull();
-            if (selected != null) Reauth.attemptReauth(this, selected.account);
+            if (selected != null) this.reauth = Reauth.attemptReauth(this, selected.account);
         }).width(74).build());
         this.deleteButton = footerTop.add(ButtonWidget.builder(Text.of("Delete"), (button) -> {
+            var selected = this.accountList.getSelectedOrNull();
+            if (selected != null) config.removeAccount(selected.account);
         }).width(74).build());
         this.makeDefaultButton = footerTop.add(ButtonWidget.builder(Text.of("Make Default"), (button) -> {
+            var selected = this.accountList.getSelectedOrNull();
+            if (selected != null) config.defaultAccount = selected.account;
         }).width(74).build());
         footerTop.add(ButtonWidget.builder(Text.of("Add Account"), (button) -> MicrosoftAuth.getCode(semaphore)
                 .thenCompose(MicrosoftAuth::getAccessToken).thenCompose(access -> MicrosoftAuth.authenticate(access)
@@ -104,19 +110,32 @@ public class ConfigScreen extends Screen {
         var selected = this.accountList.getSelectedOrNull();
         var uuid = Optional.ofNullable(selected).map(x -> x.account.uuid());
 
-        this.switchButton.active = uuid.isPresent() && !Main.client.session.getUuidOrNull().equals(uuid.get());
-        this.makeDefaultButton.active = uuid.isPresent() && !config.accounts.getFirst().uuid().equals(uuid.get());
+        this.switchButton.active = (reauth == null || reauth.isDone()) && uuid.isPresent() && !Main.client.session.getUuidOrNull()
+                .equals(uuid.get());
+        this.makeDefaultButton.active = uuid.isPresent() && !config.isDefault(selected.account);
         this.deleteButton.active = uuid.isPresent();
 
+        // ↓ eh prob shouldn't call this every frame but like whatever...
+        this.accountList.refreshEntries();
         super.render(context, mouseX, mouseY, delta);
     }
 
     class AccountListWidget extends AlwaysSelectedEntryListWidget<AccountListEntry> {
         public AccountListWidget(int width, int height, int y, int itemHeight) {
             super(Main.client, width, height, y, itemHeight);
+            this.refreshEntries();
+        }
 
+        void refreshEntries() {
+            var selected = this.getSelectedOrNull();
+            this.clearEntries();
             for (var account : config.accounts)
                 this.addEntry(new AccountListEntry(account));
+
+            if (selected != null) {
+                var entry = this.children().stream().filter(a -> a.account.equals(selected.account)).findFirst();
+                entry.ifPresent(this::setSelected);
+            }
         }
 
         @Override
@@ -152,12 +171,11 @@ public class ConfigScreen extends Screen {
             var txt = client.textRenderer;
             var contentX = this.getContentX() + this.getHeight();
             context.drawText(txt, this.account.username(), contentX, this.getContentY() + 2, 0xFFFFFFFF, true);
-            context.drawText(txt, this.account.uuid()
-                    .toString(), contentX, this.getContentY() + 2 + txt.fontHeight + txt.fontHeight / 3, 0xFFAAAAAA, true);
+            context.drawText(txt, Text.literal(this.account.uuid().toString())
+                    .formatted(Formatting.GRAY), contentX, this.getContentY() + 2 + txt.fontHeight + txt.fontHeight / 3, 0xFFFFFFFF, true);
 
             var text = Text.empty();
-            if (config.accounts.getFirst().uuid().equals(account.uuid()))
-                text.append(Text.literal("[DEFAULT]").formatted(Formatting.GOLD));
+            if (config.isDefault(account)) text.append(Text.literal("[DEFAULT]").formatted(Formatting.GOLD));
             if (client.session.getUuidOrNull().equals(account.uuid()))
                 text.append(Text.literal(" [ACTIVE]").formatted(Formatting.GREEN));
             context.drawText(txt, text, this.getContentX() + this.getContentWidth() - txt.getWidth(text), this.getContentY() + 2, 0xFFFFFFFF, true);

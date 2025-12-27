@@ -14,12 +14,14 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.connorcode.autoreauth.Main.config;
 import static com.connorcode.autoreauth.Main.directory;
 
 public class Config {
     private static final Path CONFIG_PATH = directory.resolve("config.nbt");
 
     public boolean debug = false;
+    public Account defaultAccount = null;
     public ArrayList<Account> accounts = new ArrayList<>();
 
     public Config() {
@@ -36,11 +38,21 @@ public class Config {
         accounts.add(account);
     }
 
+    public void removeAccount(Account account) {
+        if (defaultAccount.equals(account)) defaultAccount = null;
+        accounts.removeIf(a -> a.equals(account));
+    }
+
     public Optional<Account> getAccount(UUID uuid) {
         for (var account : accounts)
             if (account.uuid.equals(uuid)) return Optional.of(account);
+        if (defaultAccount != null) return Optional.of(defaultAccount);
         if (!accounts.isEmpty()) return Optional.of(accounts.getFirst());
         return Optional.empty();
+    }
+
+    public boolean isDefault(Config.Account account) {
+        return this.defaultAccount == null ? (!this.accounts.isEmpty() && this.accounts.getFirst().equals(account)) : this.defaultAccount.equals(account);
     }
 
     public boolean load() {
@@ -54,6 +66,10 @@ public class Config {
             this.accounts = tag.getList("accounts").orElse(new NbtList()).stream()
                     .map(account -> new Account(account.asCompound().orElseThrow()))
                     .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
+
+            int defaultIdx = tag.getInt("default").orElse(-1);
+            this.defaultAccount = defaultIdx > 0 && defaultIdx < accounts.size() ? this.accounts.get(defaultIdx) : null;
+
             return true;
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -63,6 +79,7 @@ public class Config {
     public void save() {
         var tag = new NbtCompound();
         tag.putBoolean("debug", debug);
+        tag.putInt("default", accounts.indexOf(defaultAccount));
 
         var accounts = new NbtList();
         for (var account : this.accounts)
@@ -100,6 +117,11 @@ public class Config {
 
         public GameProfile gameProfile() {
             return new GameProfile(uuid, username);
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            return obj instanceof Account account && this.uuid.equals(account.uuid);
         }
     }
 }
