@@ -3,6 +3,7 @@ package com.connorcode.autoreauth.gui;
 import com.connorcode.autoreauth.Config;
 import com.connorcode.autoreauth.Main;
 import com.connorcode.autoreauth.Reauth;
+import com.connorcode.autoreauth.auth.AuthUtils;
 import com.connorcode.autoreauth.auth.MicrosoftAuth;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.PlayerSkinDrawer;
@@ -68,7 +69,7 @@ public class ConfigScreen extends Screen {
                     config.addAccount(new Config.Account(pair.getLeft(), pair.getRight()));
                     config.save();
 
-                    authStatus = null;
+                    authStatus = AuthUtils.getAuthStatus();
                     lastUpdate = 0;
                     sentToast = false;
                 }).exceptionally(e -> {

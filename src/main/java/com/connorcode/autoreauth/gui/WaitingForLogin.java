@@ -57,6 +57,6 @@ public class WaitingForLogin extends Screen {
 
         var title = Text.literal("AutoReauth").formatted(Formatting.BOLD);
         context.drawCenteredTextWithShadow(txt, title, this.width / 2, 20, 0xFFFFFFFF);
-        context.drawWrappedText(txt, message, this.width / 2 - 128 / 2, 40, 128, 0xFFFFFFFF, true);
+        context.drawWrappedText(txt, message, this.width / 2 - 256 / 2, 40, 256, 0xFFFFFFFF, true);
     }
 }

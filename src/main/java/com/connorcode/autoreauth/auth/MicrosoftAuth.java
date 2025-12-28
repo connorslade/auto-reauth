@@ -9,33 +9,25 @@ import com.sun.net.httpserver.HttpServer;
 import net.minecraft.client.session.Session;
 import net.minecraft.util.JsonHelper;
 import net.minecraft.util.Util;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.client.utils.URLEncodedUtils;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 
 import static com.connorcode.autoreauth.Main.*;
+import static com.connorcode.autoreauth.auth.NetworkUtils.ofFormUrlEncodedData;
+import static com.connorcode.autoreauth.auth.NetworkUtils.parseQuery;
 
 public class MicrosoftAuth {
     public static final String CLIENT_ID = "de4f1d47-957d-49bf-a282-0da6cdaf8c54";
@@ -64,9 +56,7 @@ public class MicrosoftAuth {
             try {
                 server = HttpServer.create(new InetSocketAddress(PORT), 0);
                 server.createContext("/callback", ctx -> {
-                    var params = URLEncodedUtils.parse(ctx.getRequestURI(), StandardCharsets.UTF_8);
-                    var map = params.stream()
-                            .collect(Collectors.toMap(NameValuePair::getName, NameValuePair::getValue));
+                    var map = parseQuery(ctx.getRequestURI().getRawQuery());
 
                     if (!map.containsKey("code") || !map.containsKey("state")) {
                         ctx.sendResponseHeaders(400, 0);
@@ -98,18 +88,13 @@ public class MicrosoftAuth {
                 throw new RuntimeException(e);
             }
 
-            URI uri;
-            try {
-                var builder = new URIBuilder("https://login.microsoftonline.com/consumers/oauth2/v2.0/authorize");
-                builder.addParameter("client_id", CLIENT_ID);
-                builder.addParameter("response_type", "code");
-                builder.addParameter("redirect_uri", REDIRECT_URI);
-                builder.addParameter("scope", "XboxLive.signin offline_access");
-                builder.addParameter("state", state);
-                uri = builder.build();
-            } catch (URISyntaxException e) {
-                throw new RuntimeException(e);
-            }
+            var builder = new NetworkUtils.URIBuilder("https://login.microsoftonline.com/consumers/oauth2/v2.0/authorize");
+            builder.addParameter("client_id", CLIENT_ID);
+            builder.addParameter("response_type", "code");
+            builder.addParameter("redirect_uri", REDIRECT_URI);
+            builder.addParameter("scope", "XboxLive.signin offline_access");
+            builder.addParameter("state", state);
+            var uri = builder.build();
 
             server.start();
             Util.getOperatingSystem().open(uri);
@@ -150,14 +135,14 @@ public class MicrosoftAuth {
     public static CompletableFuture<AccessToken> getAccessToken(String code) {
         log.info("Getting access token");
         return CompletableFuture.supplyAsync(() -> {
-            try {
-                var client = HttpClients.createMinimal();
-                var req = new HttpPost(ACCESS_TOKEN_URI);
-                req.setHeader("Content-Type", "application/x-www-form-urlencoded");
-                req.setEntity(new UrlEncodedFormEntity(List.of(new BasicNameValuePair("client_id", CLIENT_ID), new BasicNameValuePair("code", code), new BasicNameValuePair("redirect_uri", REDIRECT_URI), new BasicNameValuePair("grant_type", "authorization_code"))));
+            try (var client = HttpClient.newHttpClient()) {
+                var req = HttpRequest.newBuilder(ACCESS_TOKEN_URI)
+                        .header("Content-Type", "application/x-www-form-urlencoded")
+                        .POST(ofFormUrlEncodedData(Map.of("client_id", CLIENT_ID, "code", code, "redirect_uri", REDIRECT_URI, "grant_type", "authorization_code")))
+                        .build();
+                var result = client.send(req, HttpResponse.BodyHandlers.ofString());
+                var str = result.body();
 
-                var result = client.execute(req);
-                var str = EntityUtils.toString(result.getEntity());
                 debugLog("Access token response: {}", str);
                 var json = JsonHelper.deserialize(str);
 
@@ -165,7 +150,7 @@ public class MicrosoftAuth {
                 var access_token = getIfPresent(json, "access_token", ctx).getAsString();
                 var refresh_token = getIfPresent(json, "refresh_token", ctx).getAsString();
                 return new AccessToken(access_token, refresh_token);
-            } catch (IOException e) {
+            } catch (IOException | InterruptedException e) {
                 throw new AuthException("Failed to get access token from code", e);
             }
         });
@@ -174,14 +159,13 @@ public class MicrosoftAuth {
     static CompletableFuture<AccessToken> refreshAccessToken(String refreshToken) {
         log.info("Refreshing access token");
         return CompletableFuture.supplyAsync(() -> {
-            try {
-                var client = HttpClients.createMinimal();
-                var req = new HttpPost(ACCESS_TOKEN_URI);
-                req.setHeader("Content-Type", "application/x-www-form-urlencoded");
-                req.setEntity(new UrlEncodedFormEntity(List.of(new BasicNameValuePair("client_id", CLIENT_ID), new BasicNameValuePair("refresh_token", refreshToken), new BasicNameValuePair("grant_type", "refresh_token"))));
+            try (var client = HttpClient.newHttpClient()) {
+                var req = HttpRequest.newBuilder(ACCESS_TOKEN_URI)
+                        .header("Content-Type", "application/x-www-form-urlencoded")
+                        .POST(ofFormUrlEncodedData(Map.of("client_id", CLIENT_ID, "refresh_token", refreshToken, "grant_type", "refresh_token")))
+                        .build();
+                var str = client.send(req, HttpResponse.BodyHandlers.ofString()).body();
 
-                var result = client.execute(req);
-                var str = EntityUtils.toString(result.getEntity());
                 debugLog("Refresh token response: {}", str);
                 var json = JsonHelper.deserialize(str);
 
@@ -189,7 +173,7 @@ public class MicrosoftAuth {
                 var access_token = getIfPresent(json, "access_token", ctx).getAsString();
                 var refresh_token = getIfPresent(json, "refresh_token", ctx).getAsString();
                 return new AccessToken(access_token, refresh_token);
-            } catch (IOException e) {
+            } catch (IOException | InterruptedException e) {
                 throw new AuthException("Failed to get access token from refresh token", e);
             }
         });
@@ -198,11 +182,7 @@ public class MicrosoftAuth {
     static CompletableFuture<XboxAuth> authenticateXbox(AccessToken token) {
         log.info("Authenticating Xbox");
         return CompletableFuture.supplyAsync(() -> {
-            try {
-                var client = HttpClients.createMinimal();
-                var req = new HttpPost(XBOX_AUTH_URI);
-                req.setHeader("Content-Type", "application/json");
-
+            try (var client = HttpClient.newHttpClient()) {
                 var jsonBuilder = new JsonObject();
                 var properties = new JsonObject();
                 properties.addProperty("AuthMethod", "RPS");
@@ -211,10 +191,11 @@ public class MicrosoftAuth {
                 jsonBuilder.add("Properties", properties);
                 jsonBuilder.addProperty("RelyingParty", "http://auth.xboxlive.com");
                 jsonBuilder.addProperty("TokenType", "JWT");
-                req.setEntity(new StringEntity(jsonBuilder.toString()));
 
-                var result = client.execute(req);
-                var str = EntityUtils.toString(result.getEntity());
+                var req = HttpRequest.newBuilder(XBOX_AUTH_URI).header("Content-Type", "application/json")
+                        .POST(HttpRequest.BodyPublishers.ofString(jsonBuilder.toString())).build();
+                var str = client.send(req, HttpResponse.BodyHandlers.ofString()).body();
+
                 debugLog("Xbox auth response: {}", str);
                 var json = JsonHelper.deserialize(str);
 
@@ -223,7 +204,7 @@ public class MicrosoftAuth {
                 var user_hash = getIfPresent(json, "DisplayClaims", ctx).getAsJsonObject().get("xui").getAsJsonArray()
                         .get(0).getAsJsonObject().get("uhs").getAsString();
                 return new XboxAuth(xbl_token, user_hash);
-            } catch (IOException e) {
+            } catch (IOException | InterruptedException e) {
                 throw new AuthException("Failed to authenticate Xbox", e);
             }
         });
@@ -232,11 +213,7 @@ public class MicrosoftAuth {
     static CompletableFuture<XboxAuth> obtainXstsToken(XboxAuth xboxAuth) {
         log.info("Obtaining XSTS token");
         return CompletableFuture.supplyAsync(() -> {
-            try {
-                var client = HttpClients.createMinimal();
-                var req = new HttpPost(XSTS_AUTH_URI);
-                req.setHeader("Content-Type", "application/json");
-
+            try (var client = HttpClient.newHttpClient()) {
                 var jsonBuilder = new JsonObject();
                 var properties = new JsonObject();
                 properties.addProperty("SandboxId", "RETAIL");
@@ -246,17 +223,18 @@ public class MicrosoftAuth {
                 jsonBuilder.add("Properties", properties);
                 jsonBuilder.addProperty("RelyingParty", "rp://api.minecraftservices.com/");
                 jsonBuilder.addProperty("TokenType", "JWT");
-                req.setEntity(new StringEntity(jsonBuilder.toString()));
 
-                var result = client.execute(req);
-                var str = EntityUtils.toString(result.getEntity());
+                var req = HttpRequest.newBuilder(XSTS_AUTH_URI).header("Content-Type", "application/json")
+                        .POST(HttpRequest.BodyPublishers.ofString(jsonBuilder.toString())).build();
+                var str = client.send(req, HttpResponse.BodyHandlers.ofString()).body();
+
                 debugLog("XSTS auth response: {}", str);
                 var json = JsonHelper.deserialize(str);
 
                 var ctx = "xsts auth response";
                 var xsts_token = getIfPresent(json, "Token", ctx).getAsString();
                 return new XboxAuth(xsts_token, xboxAuth.userHash);
-            } catch (IOException e) {
+            } catch (IOException | InterruptedException e) {
                 throw new AuthException("Failed to obtain XSTS token", e);
             }
         });
@@ -265,24 +243,21 @@ public class MicrosoftAuth {
     static CompletableFuture<MinecraftAuth> authenticateMinecraft(XboxAuth xstsAuth) {
         log.info("Authenticating Minecraft");
         return CompletableFuture.supplyAsync(() -> {
-            try {
-                var client = HttpClients.createMinimal();
-                var req = new HttpPost(MINECRAFT_AUTH_URI);
-                req.setHeader("Content-Type", "application/json");
-
+            try (var client = HttpClient.newHttpClient()) {
                 var jsonBuilder = new JsonObject();
                 jsonBuilder.addProperty("identityToken", "XBL3.0 x=" + xstsAuth.userHash + ";" + xstsAuth.xblToken);
-                req.setEntity(new StringEntity(jsonBuilder.toString()));
 
-                var result = client.execute(req);
-                var str = EntityUtils.toString(result.getEntity());
+                var req = HttpRequest.newBuilder(MINECRAFT_AUTH_URI).header("Content-Type", "application/json")
+                        .POST(HttpRequest.BodyPublishers.ofString(jsonBuilder.toString())).build();
+                var str = client.send(req, HttpResponse.BodyHandlers.ofString()).body();
+
                 debugLog("Minecraft auth response: {}", str);
                 var json = JsonHelper.deserialize(str);
 
                 var ctx = "minecraft auth response";
                 var access_token = getIfPresent(json, "access_token", ctx).getAsString();
                 return new MinecraftAuth(access_token);
-            } catch (IOException e) {
+            } catch (IOException | InterruptedException e) {
                 throw new AuthException("Failed to authenticate Minecraft", e);
             }
         });
@@ -291,13 +266,11 @@ public class MicrosoftAuth {
     static CompletableFuture<Session> createSession(MinecraftAuth minecraftAuth) {
         log.info("Creating session");
         return CompletableFuture.supplyAsync(() -> {
-            try {
-                var client = HttpClients.createMinimal();
-                var req = new HttpGet(PROFILE_URI);
-                req.setHeader("Authorization", "Bearer " + minecraftAuth.accessToken);
+            try (var client = HttpClient.newHttpClient()) {
+                var req = HttpRequest.newBuilder(PROFILE_URI)
+                        .header("Authorization", "Bearer " + minecraftAuth.accessToken).GET().build();
+                var str = client.send(req, HttpResponse.BodyHandlers.ofString()).body();
 
-                var result = client.execute(req);
-                var str = EntityUtils.toString(result.getEntity());
                 debugLog("Profile response: {}", str);
                 var json = JsonHelper.deserialize(str);
 
@@ -306,12 +279,11 @@ public class MicrosoftAuth {
                 var name = getIfPresent(json, "name", ctx).getAsString();
 
                 return new Session(name, Misc.parseUUID(id), minecraftAuth.accessToken, Optional.empty(), Optional.empty());
-            } catch (IOException e) {
+            } catch (IOException | InterruptedException e) {
                 throw new AuthException("Failed to create session", e);
             }
         });
     }
-
 
     static class AuthException extends CancellationException {
         @Nullable Throwable cause;
