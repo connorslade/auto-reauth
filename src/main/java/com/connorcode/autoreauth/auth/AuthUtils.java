@@ -91,7 +91,7 @@ public class AuthUtils {
         }
 
         public boolean isOnline() {
-            return this == Online;
+            return this == Online || config.offline;
         }
     }
 }

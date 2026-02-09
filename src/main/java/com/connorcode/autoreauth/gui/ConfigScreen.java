@@ -82,12 +82,17 @@ public class ConfigScreen extends Screen {
         footerBottom.add(ButtonWidget.builder(Text.of("Debug Mode: " + (config.debug ? "On" : "Off")), (button) -> {
                     config.debug ^= true;
                     button.setMessage(Text.of("Debug Mode: " + (config.debug ? "On" : "Off")));
-                }).width(152).tooltip(Tooltip.of(Text.of("Warning: Debug mode will send authentication tokens in the log.")))
+                }).width(100).tooltip(Tooltip.of(Text.of("Warning: Debug mode will send authentication tokens in the log.")))
+                .build());
+        footerBottom.add(ButtonWidget.builder(Text.of("Offline Mode: " + (config.offline ? "On" : "Off")), (button) -> {
+                    config.offline ^= true;
+                    button.setMessage(Text.of("Offline Mode: " + (config.offline ? "On" : "Off")));
+                }).width(100).tooltip(Tooltip.of(Text.of("Offline mode will let you join servers without reauthenticating.")))
                 .build());
         footerBottom.add(ButtonWidget.builder(Text.of("Back"), (button) -> {
             config.save();
             Main.client.setScreen(this.parent);
-        }).width(152).build());
+        }).width(100).build());
 
         this.accountList = this.layout.addBody(new AccountListWidget(this.width, this.layout.getContentHeight(), this.layout.getHeaderHeight(), 32));
         this.layout.forEachChild(this::addDrawableChild);
