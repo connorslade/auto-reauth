@@ -20,8 +20,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
-import static com.connorcode.autoreauth.Main.authStatus;
-import static com.connorcode.autoreauth.Main.log;
+import static com.connorcode.autoreauth.Main.*;
 import static com.connorcode.autoreauth.Reauth.*;
 
 @Mixin(RealmsMainScreen.class)
@@ -50,7 +49,7 @@ public class RealmsMainScreenMixin extends Screen {
 
     @Inject(at = @At("HEAD"), method = "method_52634(Lnet/minecraft/client/realms/RealmsAvailability$Info;)V", cancellable = true)
     void onRealmsAvailabilityInfo(RealmsAvailability.Info info, CallbackInfo ci) {
-        if (info.type() != RealmsAvailability.Type.AUTHENTICATION_ERROR) return;
+        if (!config.enabled || info.type() != RealmsAvailability.Type.AUTHENTICATION_ERROR) return;
 
         log.info("Invalid Realms auth, re-authenticating...");
         authStatus = CompletableFuture.completedFuture(AuthUtils.AuthStatus.Invalid);
