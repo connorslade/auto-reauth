@@ -20,9 +20,9 @@ public class Config {
     private static final Path CONFIG_PATH = directory.resolve("config.nbt");
 
     public boolean debug = false;
+    public boolean enabled = true;
     public Account defaultAccount = null;
     public ArrayList<Account> accounts = new ArrayList<>();
-    public boolean offline = false;
 
     public Config() {
     }
@@ -63,7 +63,7 @@ public class Config {
             assert tag != null;
 
             this.debug = tag.getBoolean("debug").orElse(false);
-            this.offline = tag.getBoolean("offline").orElse(false);
+            this.enabled = tag.getBoolean("enabled").orElse(true);
             this.accounts = tag.getList("accounts").orElse(new NbtList()).stream()
                     .map(account -> new Account(account.asCompound().orElseThrow()))
                     .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
@@ -80,7 +80,7 @@ public class Config {
     public void save() {
         var tag = new NbtCompound();
         tag.putBoolean("debug", debug);
-        tag.putBoolean("offline", offline);
+        tag.putBoolean("enabled", enabled);
         tag.putInt("default", accounts.indexOf(defaultAccount));
 
         var accounts = new NbtList();

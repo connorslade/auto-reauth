@@ -22,6 +22,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Semaphore;
+import java.util.function.Function;
 
 import static com.connorcode.autoreauth.Main.*;
 
@@ -79,15 +80,17 @@ public class ConfigScreen extends Screen {
                     return null;
                 })).width(74).tooltip(Tooltip.of(Text.of("Warning: Tokens are stored in your home folder."))).build());
 
-        footerBottom.add(ButtonWidget.builder(Text.of("Debug Mode: " + (config.debug ? "On" : "Off")), (button) -> {
-                    config.debug ^= true;
-                    button.setMessage(Text.of("Debug Mode: " + (config.debug ? "On" : "Off")));
-                }).width(100).tooltip(Tooltip.of(Text.of("Warning: Debug mode will send authentication tokens in the log.")))
+
+        footerBottom.add(callbackButton(clicked -> {
+            config.debug ^= clicked;
+            return "Debug: " + (config.debug ? "On" : "Off");
+        }).width(100).tooltip(Tooltip.of(Text.of("Warning: Debug mode will send authentication tokens in the log.")))
                 .build());
-        footerBottom.add(ButtonWidget.builder(Text.of("Offline Mode: " + (config.offline ? "On" : "Off")), (button) -> {
-                    config.offline ^= true;
-                    button.setMessage(Text.of("Offline Mode: " + (config.offline ? "On" : "Off")));
-                }).width(100).tooltip(Tooltip.of(Text.of("Offline mode will let you join servers without reauthenticating.")))
+        footerBottom.add(callbackButton(clicked -> {
+            config.enabled ^= clicked;
+            return "Reauth: " + (config.enabled ? "Auto" : "Manual");
+        }).width(100)
+                .tooltip(Tooltip.of(Text.of("Whether your session should be automatically re-authenticated on expiration.")))
                 .build());
         footerBottom.add(ButtonWidget.builder(Text.of("Back"), (button) -> {
             config.save();
@@ -124,6 +127,12 @@ public class ConfigScreen extends Screen {
         // ↓ eh prob shouldn't call this every frame but like whatever...
         this.accountList.refreshEntries();
         super.render(context, mouseX, mouseY, delta);
+    }
+
+    private ButtonWidget.Builder callbackButton(Function<Boolean, String> callback) {
+        return ButtonWidget.builder(Text.of(callback.apply(false)), (button) -> {
+            button.setMessage(Text.of(callback.apply(true)));
+        });
     }
 
     class AccountListWidget extends AlwaysSelectedEntryListWidget<AccountListEntry> {
