@@ -87,8 +87,8 @@ public class ConfigScreen extends Screen {
         }).width(100).tooltip(Tooltip.of(Text.of("Warning: Debug mode will send authentication tokens in the log.")))
                 .build());
         footerBottom.add(callbackButton(clicked -> {
-            config.enabled ^= clicked;
-            return "Reauth: " + (config.enabled ? "Auto" : "Manual");
+            config.auto ^= clicked;
+            return "Reauth: " + (config.auto ? "Auto" : "Manual");
         }).width(100)
                 .tooltip(Tooltip.of(Text.of("Whether your session should be automatically re-authenticated on expiration.")))
                 .build());

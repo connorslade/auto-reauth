@@ -56,7 +56,7 @@ public class Reauth {
         }
 
         var status = authStatus.getNow(AuthUtils.AuthStatus.Unknown);
-        if (config.enabled && status.isInvalid() && !sentToast) {
+        if (config.auto && status.isInvalid() && !sentToast) {
             sentToast = true;
             var account = config.getAccount(client.session.getUuidOrNull());
             if (account.isEmpty()) {

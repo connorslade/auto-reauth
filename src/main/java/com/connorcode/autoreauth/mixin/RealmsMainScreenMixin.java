@@ -25,7 +25,8 @@ import static com.connorcode.autoreauth.Reauth.*;
 
 @Mixin(RealmsMainScreen.class)
 public class RealmsMainScreenMixin extends Screen {
-    @Unique boolean hovered;
+    @Unique
+    boolean hovered;
 
     protected RealmsMainScreenMixin(Text title) {
         super(title);
@@ -49,7 +50,7 @@ public class RealmsMainScreenMixin extends Screen {
 
     @Inject(at = @At("HEAD"), method = "method_52634(Lnet/minecraft/client/realms/RealmsAvailability$Info;)V", cancellable = true)
     void onRealmsAvailabilityInfo(RealmsAvailability.Info info, CallbackInfo ci) {
-        if (!config.enabled || info.type() != RealmsAvailability.Type.AUTHENTICATION_ERROR) return;
+        if (!config.auto || info.type() != RealmsAvailability.Type.AUTHENTICATION_ERROR) return;
 
         log.info("Invalid Realms auth, re-authenticating...");
         authStatus = CompletableFuture.completedFuture(AuthUtils.AuthStatus.Invalid);

@@ -18,7 +18,8 @@ import static com.connorcode.autoreauth.Reauth.*;
 
 @Mixin(MultiplayerScreen.class)
 public class MultiplayerScreenMixin extends Screen {
-    @Unique  boolean hovered;
+    @Unique
+    boolean hovered;
 
     protected MultiplayerScreenMixin(Text title) {
         super(title);

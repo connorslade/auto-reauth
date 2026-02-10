@@ -1,7 +1,6 @@
 package com.connorcode.autoreauth;
 
 import com.connorcode.autoreauth.auth.MicrosoftAuth;
-import com.mojang.authlib.GameProfile;
 import net.minecraft.client.session.Session;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtIo;
@@ -20,7 +19,7 @@ public class Config {
     private static final Path CONFIG_PATH = directory.resolve("config.nbt");
 
     public boolean debug = false;
-    public boolean enabled = true;
+    public boolean auto = true;
     public Account defaultAccount = null;
     public ArrayList<Account> accounts = new ArrayList<>();
 
@@ -52,7 +51,8 @@ public class Config {
     }
 
     public boolean isDefault(Config.Account account) {
-        return this.defaultAccount == null ? (!this.accounts.isEmpty() && this.accounts.getFirst().equals(account)) : this.defaultAccount.equals(account);
+        return this.defaultAccount == null ? (!this.accounts.isEmpty() && this.accounts.getFirst()
+                .equals(account)) : this.defaultAccount.equals(account);
     }
 
     public boolean load() {
@@ -63,7 +63,7 @@ public class Config {
             assert tag != null;
 
             this.debug = tag.getBoolean("debug").orElse(false);
-            this.enabled = tag.getBoolean("enabled").orElse(true);
+            this.auto = tag.getBoolean("auto").orElse(true);
             this.accounts = tag.getList("accounts").orElse(new NbtList()).stream()
                     .map(account -> new Account(account.asCompound().orElseThrow()))
                     .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
@@ -80,7 +80,7 @@ public class Config {
     public void save() {
         var tag = new NbtCompound();
         tag.putBoolean("debug", debug);
-        tag.putBoolean("enabled", enabled);
+        tag.putBoolean("auto", auto);
         tag.putInt("default", accounts.indexOf(defaultAccount));
 
         var accounts = new NbtList();
@@ -115,10 +115,6 @@ public class Config {
             tag.putString("uuid", uuid.toString());
             tag.putString("username", username);
             return tag;
-        }
-
-        public GameProfile gameProfile() {
-            return new GameProfile(uuid, username);
         }
 
         @Override
