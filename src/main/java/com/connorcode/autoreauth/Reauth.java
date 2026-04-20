@@ -4,15 +4,14 @@ import com.connorcode.autoreauth.auth.AuthUtils;
 import com.connorcode.autoreauth.auth.MicrosoftAuth;
 import com.connorcode.autoreauth.gui.ErrorScreen;
 import com.mojang.authlib.exceptions.AuthenticationException;
+import com.mojang.blaze3d.platform.cursor.CursorTypes;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.cursor.StandardCursors;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
-import net.minecraft.client.util.math.Rect2i;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
+import net.minecraft.client.renderer.Rect2i;
+import net.minecraft.network.chat.Component;
 import java.util.concurrent.CompletableFuture;
 
 import static com.connorcode.autoreauth.Main.*;
@@ -20,30 +19,30 @@ import static com.connorcode.autoreauth.Main.*;
 public class Reauth {
     static final boolean METEOR_LOADED = FabricLoader.getInstance().isModLoaded("meteor-client");
 
-    public static boolean renderAuthStatus(DrawContext context, int mouseX, int mouseY) {
+    public static boolean renderAuthStatus(GuiGraphicsExtractor context, int mouseX, int mouseY) {
         var status = authStatus.getNow(AuthUtils.AuthStatus.Unknown);
         var color = switch (status) {
-            case Unknown -> Formatting.GRAY;
-            case Invalid, Offline -> Formatting.RED;
-            case Online -> Formatting.GREEN;
+            case Unknown -> ChatFormatting.GRAY;
+            case Invalid, Offline -> ChatFormatting.RED;
+            case Online -> ChatFormatting.GREEN;
         };
 
-        var txt = client.textRenderer;
-        if (METEOR_LOADED && client.currentScreen instanceof MultiplayerScreen) {
-            var text = Text.literal("[ ").append(Text.literal(String.valueOf(status)).formatted(color))
-                    .append(Text.literal(" ]"));
-            var x = txt.getWidth("Logged in as  " + client.getSession().getUsername()) + 3;
-            context.drawText(txt, text, x, 3, 0xFFFFFFFF, true);
+        var txt = client.font;
+        if (METEOR_LOADED && client.screen instanceof JoinMultiplayerScreen) {
+            var text = Component.literal("[ ").append(Component.literal(String.valueOf(status)).withStyle(color))
+                    .append(Component.literal(" ]"));
+            var x = txt.width("Logged in as  " + client.getUser().getName()) + 3;
+            context.text(txt, text, x, 3, 0xFFFFFFFF, true);
             return false;
         } else {
-            var text = status == AuthUtils.AuthStatus.Online ? Text.empty()
-                    .append(Text.literal("Online").formatted(color)).append(" as ")
-                    .append(client.getSession().getUsername()) : Text.literal(String.valueOf(status)).formatted(color);
-            context.drawText(txt, text, 10, 10, 0xFFFFFFFF, true);
+            var text = status == AuthUtils.AuthStatus.Online ? Component.empty()
+                    .append(Component.literal("Online").withStyle(color)).append(" as ")
+                    .append(client.getUser().getName()) : Component.literal(String.valueOf(status)).withStyle(color);
+            context.text(txt, text, 10, 10, 0xFFFFFFFF, true);
 
-            var bounds = new Rect2i(10, 10, txt.getWidth(text), txt.fontHeight);
+            var bounds = new Rect2i(10, 10, txt.width(text), txt.lineHeight);
             var inBounds = bounds.contains(mouseX, mouseY);
-            if (inBounds) context.setCursor(StandardCursors.POINTING_HAND);
+            if (inBounds) context.requestCursor(CursorTypes.POINTING_HAND);
             return inBounds;
         }
     }
@@ -58,7 +57,7 @@ public class Reauth {
         var status = authStatus.getNow(AuthUtils.AuthStatus.Unknown);
         if (config.auto && status.isInvalid() && !sentToast) {
             sentToast = true;
-            var account = config.getAccount(client.session.getUuidOrNull());
+            var account = config.getAccount(client.user.getProfileId());
             if (account.isEmpty()) {
                 Misc.sendToast("AutoReauth", "Session expired but no login info found");
                 return;
@@ -81,10 +80,10 @@ public class Reauth {
                 log.error("Error re-authenticating", e);
             }
             authStatus = AuthUtils.getAuthStatus();
-            Misc.sendToast("AutoReauth", String.format("Authenticated as %s!", session.getUsername()));
+            Misc.sendToast("AutoReauth", String.format("Authenticated as %s!", session.getName()));
         }).exceptionally(e -> {
             log.error("Error re-authenticating", e);
-            client.send(() -> client.setScreen(new ErrorScreen(parent, "Error re-authenticating", e.toString())));
+            client.schedule(() -> client.setScreen(new ErrorScreen(parent, "Error re-authenticating", e.toString())));
             return null;
         });
     }

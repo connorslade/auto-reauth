@@ -4,7 +4,7 @@ import com.connorcode.autoreauth.auth.AuthUtils;
 import com.mojang.logging.LogUtils;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 import org.slf4j.Logger;
 
 import java.nio.file.Path;
@@ -13,7 +13,7 @@ import java.util.concurrent.CompletableFuture;
 public class Main implements ClientModInitializer {
     public static final Path directory = Path.of(System.getProperty("user.home")).resolve(".auto-reauth");
     public static Logger log = LogUtils.getLogger();
-    public static MinecraftClient client = MinecraftClient.getInstance();
+    public static Minecraft client = Minecraft.getInstance();
 
     public static Config config = new Config();
     public static CompletableFuture<AuthUtils.AuthStatus> authStatus;

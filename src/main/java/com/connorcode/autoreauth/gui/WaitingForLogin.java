@@ -1,61 +1,60 @@
 package com.connorcode.autoreauth.gui;
 
 import com.connorcode.autoreauth.Main;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.GridWidget;
-import net.minecraft.client.gui.widget.SimplePositioningWidget;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-
 import java.net.URI;
 import java.util.concurrent.Semaphore;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.layouts.FrameLayout;
+import net.minecraft.client.gui.layouts.GridLayout;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
 
 public class WaitingForLogin extends Screen {
-    private static final Text message = Text.literal("Complete the oauth flow opened in your browser. If it failed to open, you can manually copy the link with the button below.");
-    private final GridWidget grid = new GridWidget().setColumnSpacing(5);
+    private static final Component message = Component.literal("Complete the oauth flow opened in your browser. If it failed to open, you can manually copy the link with the button below.");
+    private final GridLayout grid = new GridLayout().columnSpacing(5);
 
     Screen parent;
     Semaphore semaphore;
     URI redirect;
 
     public WaitingForLogin(Screen parent, Semaphore semaphore, URI redirect) {
-        super(Text.of("Waiting for Login"));
+        super(Component.nullToEmpty("Waiting for Login"));
         this.parent = parent;
         this.semaphore = semaphore;
         this.redirect = redirect;
     }
 
     @Override
-    public void close() {
+    public void onClose() {
         semaphore.release();
         Main.client.setScreen(parent);
     }
 
     @Override
     protected void init() {
-        var adder = this.grid.createAdder(2);
-        var positioner = adder.copyPositioner().alignHorizontalCenter();
+        var adder = this.grid.createRowHelper(2);
+        var positioner = adder.newCellSettings().alignHorizontallyCenter();
 
-        adder.add(ButtonWidget.builder(Text.of("Copy Auth Link"), (button) -> Main.client.keyboard.setClipboard(redirect.toString()))
+        adder.addChild(Button.builder(Component.nullToEmpty("Copy Auth Link"), (button) -> Main.client.keyboardHandler.setClipboard(redirect.toString()))
                 .build(), positioner);
-        adder.add(ButtonWidget.builder(Text.of("Abort"), (button) -> this.close()).build(), positioner);
+        adder.addChild(Button.builder(Component.nullToEmpty("Abort"), (button) -> this.onClose()).build(), positioner);
 
-        this.grid.forEachChild(this::addDrawableChild);
-        this.grid.refreshPositions();
-        SimplePositioningWidget.setPos(this.grid, 0, this.height - 64, this.width, 64);
+        this.grid.visitWidgets(this::addRenderableWidget);
+        this.grid.arrangeElements();
+        FrameLayout.centerInRectangle(this.grid, 0, this.height - 64, this.width, 64);
     }
 
     @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+    public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
         if (!semaphore.hasQueuedThreads()) Main.client.setScreen(parent);
 
-        super.render(context, mouseX, mouseY, delta);
-        var txt = Main.client.textRenderer;
+        super.extractRenderState(context, mouseX, mouseY, delta);
+        var txt = Main.client.font;
 
-        var title = Text.literal("AutoReauth").formatted(Formatting.BOLD);
-        context.drawCenteredTextWithShadow(txt, title, this.width / 2, 20, 0xFFFFFFFF);
-        context.drawWrappedText(txt, message, this.width / 2 - 256 / 2, 40, 256, 0xFFFFFFFF, true);
+        var title = Component.literal("AutoReauth").withStyle(ChatFormatting.BOLD);
+        context.centeredText(txt, title, this.width / 2, 20, 0xFFFFFFFF);
+        context.textWithWordWrap(txt, message, this.width / 2 - 256 / 2, 40, 256, 0xFFFFFFFF, true);
     }
 }

@@ -1,12 +1,12 @@
 package com.connorcode.autoreauth.gui;
 
 import com.connorcode.autoreauth.Main;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.text.StringVisitable;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FormattedText;
+import net.minecraft.network.chat.Style;
 
 public class ErrorScreen extends Screen {
     Screen parent;
@@ -14,7 +14,7 @@ public class ErrorScreen extends Screen {
     String error;
 
     public ErrorScreen(Screen parent, String title, String error) {
-        super(Text.of("Error"));
+        super(Component.nullToEmpty("Error"));
         this.parent = parent;
         this.title = title;
         this.error = error;
@@ -22,31 +22,31 @@ public class ErrorScreen extends Screen {
 
     @Override
     protected void init() {
-        addDrawableChild(ButtonWidget.builder(Text.of("Back"), (button) -> {
+        addRenderableWidget(Button.builder(Component.nullToEmpty("Back"), (button) -> {
             Main.client.setScreen(parent);
-        }).size(200, 20).position(this.width / 2 - 100, this.height - 30).build());
+        }).size(200, 20).pos(this.width / 2 - 100, this.height - 30).build());
     }
 
     @Override
-    public void close() {
+    public void onClose() {
         Main.client.setScreen(parent);
     }
 
     @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        super.render(context, mouseX, mouseY, delta);
+    public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
+        super.extractRenderState(context, mouseX, mouseY, delta);
 
-        var txt = Main.client.textRenderer;
+        var txt = Main.client.font;
 
-        var title = Text.of(this.title).getWithStyle(Style.EMPTY.withBold(true)).get(0);
-        var titleWidth = txt.getWidth(title);
-        context.drawText(txt, title, this.width / 2 - titleWidth / 2, 20, 0xFFFFFFFF, true);
+        var title = Component.nullToEmpty(this.title).toFlatList(Style.EMPTY.withBold(true)).get(0);
+        var titleWidth = txt.width(title);
+        context.text(txt, title, this.width / 2 - titleWidth / 2, 20, 0xFFFFFFFF, true);
 
-        var lines = txt.wrapLines(StringVisitable.plain(this.error), 300);
+        var lines = txt.split(FormattedText.of(this.error), 300);
         for (var i = 0; i < lines.size(); i++) {
             var line = lines.get(i);
-            var lineWidth = txt.getWidth(line);
-            context.drawText(txt, line, this.width / 2 - lineWidth / 2, 40 + i * 10, 0xFFFFFFFF, true);
+            var lineWidth = txt.width(line);
+            context.text(txt, line, this.width / 2 - lineWidth / 2, 40 + i * 10, 0xFFFFFFFF, true);
         }
     }
 }

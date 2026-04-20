@@ -1,11 +1,10 @@
 package com.connorcode.autoreauth;
 
 import com.connorcode.autoreauth.auth.MicrosoftAuth;
-import net.minecraft.client.session.Session;
-import net.minecraft.nbt.NbtCompound;
+import net.minecraft.client.User;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtIo;
-import net.minecraft.nbt.NbtList;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -64,7 +63,7 @@ public class Config {
 
             this.debug = tag.getBoolean("debug").orElse(false);
             this.auto = tag.getBoolean("auto").orElse(true);
-            this.accounts = tag.getList("accounts").orElse(new NbtList()).stream()
+            this.accounts = tag.getList("accounts").orElse(new ListTag()).stream()
                     .map(account -> new Account(account.asCompound().orElseThrow()))
                     .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
 
@@ -78,12 +77,12 @@ public class Config {
     }
 
     public void save() {
-        var tag = new NbtCompound();
+        var tag = new CompoundTag();
         tag.putBoolean("debug", debug);
         tag.putBoolean("auto", auto);
         tag.putInt("default", accounts.indexOf(defaultAccount));
 
-        var accounts = new NbtList();
+        var accounts = new ListTag();
         for (var account : this.accounts)
             accounts.add(account.serialize());
 
@@ -98,18 +97,18 @@ public class Config {
     }
 
     public record Account(MicrosoftAuth.AccessToken accessToken, UUID uuid, String username) {
-        public Account(MicrosoftAuth.AccessToken access, Session session) {
-            this(access, session.getUuidOrNull(), session.getUsername());
+        public Account(MicrosoftAuth.AccessToken access, User session) {
+            this(access, session.getProfileId(), session.getName());
         }
 
-        public Account(NbtCompound nbt) {
+        public Account(CompoundTag nbt) {
             this(new MicrosoftAuth.AccessToken(nbt.getString("accessToken").orElseThrow(), nbt.getString("refreshToken")
                     .orElseThrow()), Misc.parseUUID(nbt.getString("uuid").orElseThrow()), nbt.getString("username")
                     .orElseThrow());
         }
 
-        public NbtCompound serialize() {
-            var tag = new NbtCompound();
+        public CompoundTag serialize() {
+            var tag = new CompoundTag();
             tag.putString("accessToken", accessToken.accessToken());
             tag.putString("refreshToken", accessToken.refreshToken());
             tag.putString("uuid", uuid.toString());

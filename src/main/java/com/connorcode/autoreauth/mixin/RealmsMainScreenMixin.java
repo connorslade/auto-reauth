@@ -4,13 +4,8 @@ import com.connorcode.autoreauth.Main;
 import com.connorcode.autoreauth.auth.AuthUtils;
 import com.connorcode.autoreauth.gui.ConfigScreen;
 import com.connorcode.autoreauth.gui.RealmsWaitingScreen;
-import net.minecraft.client.gui.Click;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.TitleScreen;
-import net.minecraft.client.realms.RealmsAvailability;
-import net.minecraft.client.realms.gui.screen.RealmsMainScreen;
-import net.minecraft.text.Text;
+import com.mojang.realmsclient.RealmsAvailability;
+import com.mojang.realmsclient.RealmsMainScreen;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -19,6 +14,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.TitleScreen;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.network.chat.Component;
 
 import static com.connorcode.autoreauth.Main.*;
 import static com.connorcode.autoreauth.Reauth.*;
@@ -28,7 +28,7 @@ public class RealmsMainScreenMixin extends Screen {
     @Unique
     boolean hovered;
 
-    protected RealmsMainScreenMixin(Text title) {
+    protected RealmsMainScreenMixin(Component title) {
         super(title);
         throw new UnsupportedOperationException("Mixin constructor");
     }
@@ -38,8 +38,8 @@ public class RealmsMainScreenMixin extends Screen {
         refreshAuthStatus();
     }
 
-    @Inject(at = @At("TAIL"), method = "render")
-    private void render(DrawContext context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
+    @Inject(at = @At("TAIL"), method = "extractRenderState")
+    private void render(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
         this.hovered = renderAuthStatus(context, mouseX, mouseY);
     }
 
@@ -48,8 +48,8 @@ public class RealmsMainScreenMixin extends Screen {
         tickAuthStatus(this);
     }
 
-    @Inject(at = @At("HEAD"), method = "method_52634(Lnet/minecraft/client/realms/RealmsAvailability$Info;)V", cancellable = true)
-    void onRealmsAvailabilityInfo(RealmsAvailability.Info info, CallbackInfo ci) {
+    @Inject(at = @At("HEAD"), method = "lambda$init$9(Lcom/mojang/realmsclient/RealmsAvailability$Result;)V", cancellable = true)
+    void onRealmsAvailabilityInfo(RealmsAvailability.Result info, CallbackInfo ci) {
         if (!config.auto || info.type() != RealmsAvailability.Type.AUTHENTICATION_ERROR) return;
 
         log.info("Invalid Realms auth, re-authenticating...");
@@ -59,8 +59,8 @@ public class RealmsMainScreenMixin extends Screen {
     }
 
     @Override
-    public boolean mouseClicked(Click click, boolean doubled) {
-        if (this.hovered) Objects.requireNonNull(client).setScreen(new ConfigScreen(this));
+    public boolean mouseClicked(MouseButtonEvent click, boolean doubled) {
+        if (this.hovered) Objects.requireNonNull(minecraft).setScreen(new ConfigScreen(this));
         return super.mouseClicked(click, doubled);
     }
 }

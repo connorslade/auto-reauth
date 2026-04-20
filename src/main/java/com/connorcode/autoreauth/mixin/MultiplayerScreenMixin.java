@@ -1,11 +1,6 @@
 package com.connorcode.autoreauth.mixin;
 
 import com.connorcode.autoreauth.gui.ConfigScreen;
-import net.minecraft.client.gui.Click;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
-import net.minecraft.text.Text;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -13,15 +8,20 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Objects;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.network.chat.Component;
 
 import static com.connorcode.autoreauth.Reauth.*;
 
-@Mixin(MultiplayerScreen.class)
+@Mixin(JoinMultiplayerScreen.class)
 public class MultiplayerScreenMixin extends Screen {
     @Unique
     boolean hovered;
 
-    protected MultiplayerScreenMixin(Text title) {
+    protected MultiplayerScreenMixin(Component title) {
         super(title);
         throw new UnsupportedOperationException("Mixin constructor");
     }
@@ -32,8 +32,8 @@ public class MultiplayerScreenMixin extends Screen {
     }
 
     @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        super.render(context, mouseX, mouseY, delta);
+    public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
+        super.extractRenderState(context, mouseX, mouseY, delta);
         this.hovered = renderAuthStatus(context, mouseX, mouseY);
     }
 
@@ -43,8 +43,8 @@ public class MultiplayerScreenMixin extends Screen {
     }
 
     @Override
-    public boolean mouseClicked(Click click, boolean doubled) {
-        if (this.hovered) Objects.requireNonNull(client).setScreen(new ConfigScreen(this));
+    public boolean mouseClicked(MouseButtonEvent click, boolean doubled) {
+        if (this.hovered) Objects.requireNonNull(minecraft).setScreen(new ConfigScreen(this));
         return super.mouseClicked(click, doubled);
     }
 }

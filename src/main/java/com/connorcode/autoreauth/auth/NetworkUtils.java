@@ -1,7 +1,5 @@
 package com.connorcode.autoreauth.auth;
 
-import net.minecraft.util.Pair;
-
 import java.net.URI;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -11,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import net.minecraft.util.Tuple;
 
 public class NetworkUtils {
     public static String urlEncode(String str) {
@@ -48,14 +47,14 @@ public class NetworkUtils {
 
     public static class URIBuilder {
         String base;
-        List<Pair<String, String>> query = new ArrayList<>();
+        List<Tuple<String, String>> query = new ArrayList<>();
 
         public URIBuilder(String base) {
             this.base = base;
         }
 
         public void addParameter(String key, String value) {
-            this.query.add(new Pair<>(key, value));
+            this.query.add(new Tuple<>(key, value));
         }
 
         public URI build() {
@@ -65,9 +64,9 @@ public class NetworkUtils {
             for (int i = 0; i < this.query.size(); i++) {
                 if (i != 0) builder.append("&");
                 var param = this.query.get(i);
-                builder.append(urlEncode(param.getLeft()));
+                builder.append(urlEncode(param.getA()));
                 builder.append("=");
-                builder.append(urlEncode(param.getRight()));
+                builder.append(urlEncode(param.getB()));
             }
 
             return URI.create(builder.toString());

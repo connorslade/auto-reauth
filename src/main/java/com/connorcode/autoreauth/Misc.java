@@ -1,10 +1,9 @@
 package com.connorcode.autoreauth;
 
-import net.minecraft.client.toast.SystemToast;
-import net.minecraft.text.Text;
-
 import java.math.BigInteger;
 import java.util.UUID;
+import net.minecraft.client.gui.components.toasts.SystemToast;
+import net.minecraft.network.chat.Component;
 
 import static com.connorcode.autoreauth.Main.client;
 
@@ -18,8 +17,8 @@ public class Misc {
     }
 
     public static void sendToast(String title, String message) {
-        client.send(() -> client.getToastManager()
-                .add(new SystemToast(SystemToast.Type.PERIODIC_NOTIFICATION, Text.of(title), Text.of(message))));
+        client.schedule(() -> client.getToastManager()
+                .addToast(new SystemToast(SystemToast.SystemToastId.PERIODIC_NOTIFICATION, Component.nullToEmpty(title), Component.nullToEmpty(message))));
 
     }
 
