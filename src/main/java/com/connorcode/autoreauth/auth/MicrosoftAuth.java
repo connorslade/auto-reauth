@@ -6,8 +6,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.sun.net.httpserver.HttpServer;
-import net.minecraft.client.session.Session;
-import net.minecraft.util.JsonHelper;
+import net.minecraft.client.User;
+import net.minecraft.util.GsonHelper;
 import net.minecraft.util.Util;
 import org.jetbrains.annotations.Nullable;
 
@@ -97,9 +97,9 @@ public class MicrosoftAuth {
             var uri = builder.build();
 
             server.start();
-            Util.getOperatingSystem().open(uri);
+            Util.getPlatform().openUri(uri);
 
-            client.send(() -> client.setScreen(new WaitingForLogin(client.currentScreen, semaphore, uri)));
+            client.schedule(() -> client.setScreen(new WaitingForLogin(client.screen, semaphore, uri)));
 
             try {
                 semaphore.acquire();
@@ -119,13 +119,13 @@ public class MicrosoftAuth {
         if (config.debug) log.info(fmt, args);
     }
 
-    public static CompletableFuture<Session> authenticate(String code) {
+    public static CompletableFuture<User> authenticate(String code) {
         return getAccessToken(code).thenCompose(MicrosoftAuth::authenticateXbox)
                 .thenCompose(MicrosoftAuth::obtainXstsToken).thenCompose(MicrosoftAuth::authenticateMinecraft)
                 .thenCompose(MicrosoftAuth::createSession);
     }
 
-    public static CompletableFuture<Session> authenticate(AccessToken token) {
+    public static CompletableFuture<User> authenticate(AccessToken token) {
         // TODO: Use access token if its still valid
         return refreshAccessToken(token.refreshToken).thenCompose(MicrosoftAuth::authenticateXbox)
                 .thenCompose(MicrosoftAuth::obtainXstsToken).thenCompose(MicrosoftAuth::authenticateMinecraft)
@@ -144,7 +144,7 @@ public class MicrosoftAuth {
                 var str = result.body();
 
                 debugLog("Access token response: {}", str);
-                var json = JsonHelper.deserialize(str);
+                var json = GsonHelper.parse(str);
 
                 var ctx = "access token response from code";
                 var access_token = getIfPresent(json, "access_token", ctx).getAsString();
@@ -167,7 +167,7 @@ public class MicrosoftAuth {
                 var str = client.send(req, HttpResponse.BodyHandlers.ofString()).body();
 
                 debugLog("Refresh token response: {}", str);
-                var json = JsonHelper.deserialize(str);
+                var json = GsonHelper.parse(str);
 
                 var ctx = "access token response from refresh token";
                 var access_token = getIfPresent(json, "access_token", ctx).getAsString();
@@ -197,7 +197,7 @@ public class MicrosoftAuth {
                 var str = client.send(req, HttpResponse.BodyHandlers.ofString()).body();
 
                 debugLog("Xbox auth response: {}", str);
-                var json = JsonHelper.deserialize(str);
+                var json = GsonHelper.parse(str);
 
                 var ctx = "xbox auth response";
                 var xbl_token = getIfPresent(json, "Token", ctx).getAsString();
@@ -229,7 +229,7 @@ public class MicrosoftAuth {
                 var str = client.send(req, HttpResponse.BodyHandlers.ofString()).body();
 
                 debugLog("XSTS auth response: {}", str);
-                var json = JsonHelper.deserialize(str);
+                var json = GsonHelper.parse(str);
 
                 var ctx = "xsts auth response";
                 var xsts_token = getIfPresent(json, "Token", ctx).getAsString();
@@ -252,7 +252,7 @@ public class MicrosoftAuth {
                 var str = client.send(req, HttpResponse.BodyHandlers.ofString()).body();
 
                 debugLog("Minecraft auth response: {}", str);
-                var json = JsonHelper.deserialize(str);
+                var json = GsonHelper.parse(str);
 
                 var ctx = "minecraft auth response";
                 var access_token = getIfPresent(json, "access_token", ctx).getAsString();
@@ -263,7 +263,7 @@ public class MicrosoftAuth {
         });
     }
 
-    static CompletableFuture<Session> createSession(MinecraftAuth minecraftAuth) {
+    static CompletableFuture<User> createSession(MinecraftAuth minecraftAuth) {
         log.info("Creating session");
         return CompletableFuture.supplyAsync(() -> {
             try (var client = HttpClient.newHttpClient()) {
@@ -272,13 +272,13 @@ public class MicrosoftAuth {
                 var str = client.send(req, HttpResponse.BodyHandlers.ofString()).body();
 
                 debugLog("Profile response: {}", str);
-                var json = JsonHelper.deserialize(str);
+                var json = GsonHelper.parse(str);
 
                 var ctx = "profile response";
                 var id = getIfPresent(json, "id", ctx).getAsString();
                 var name = getIfPresent(json, "name", ctx).getAsString();
 
-                return new Session(name, Misc.parseUUID(id), minecraftAuth.accessToken, Optional.empty(), Optional.empty());
+                return new User(name, Misc.parseUUID(id), minecraftAuth.accessToken, Optional.empty(), Optional.empty());
             } catch (IOException | InterruptedException e) {
                 throw new AuthException("Failed to create session", e);
             }

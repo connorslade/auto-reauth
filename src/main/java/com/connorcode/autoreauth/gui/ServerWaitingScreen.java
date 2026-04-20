@@ -1,21 +1,21 @@
 package com.connorcode.autoreauth.gui;
 
 import com.connorcode.autoreauth.auth.AuthUtils;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.network.ServerAddress;
-import net.minecraft.client.network.ServerInfo;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.multiplayer.ServerData;
+import net.minecraft.client.multiplayer.resolver.ServerAddress;
+import net.minecraft.network.chat.Component;
 
 import static com.connorcode.autoreauth.Main.authStatus;
 import static com.connorcode.autoreauth.Reauth.tickAuthStatus;
 
 public class ServerWaitingScreen extends WaitingScreen {
     ServerAddress address;
-    ServerInfo info;
+    ServerData info;
     boolean quickPlay;
 
-    public ServerWaitingScreen(Screen parent, ServerAddress address, ServerInfo info, boolean quickPlay) {
-        super(parent, Text.literal("You will automatically join the server once you are authenticated."));
+    public ServerWaitingScreen(Screen parent, ServerAddress address, ServerData info, boolean quickPlay) {
+        super(parent, Component.literal("You will automatically join the server once you are authenticated."));
         this.parent = parent;
         this.address = address;
         this.info = info;

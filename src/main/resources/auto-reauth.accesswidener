@@ -1,30 +1,24 @@
-accessWidener   v1  named
-
-## AuthUtils::setSession ##
-accessible field net/minecraft/client/MinecraftClient splashTextLoader Lnet/minecraft/client/resource/SplashTextResourceSupplier;
-accessible field net/minecraft/client/MinecraftClient session Lnet/minecraft/client/session/Session;
-accessible field net/minecraft/client/resource/SplashTextResourceSupplier session Lnet/minecraft/client/session/Session;
-accessible field net/minecraft/client/MinecraftClient socialInteractionsManager Lnet/minecraft/client/network/SocialInteractionsManager;
-accessible field net/minecraft/client/MinecraftClient profileKeys Lnet/minecraft/client/session/ProfileKeys;
-accessible field net/minecraft/client/MinecraftClient abuseReportContext Lnet/minecraft/client/session/report/AbuseReportContext;
-accessible field net/minecraft/client/MinecraftClient realmsPeriodicCheckers Lnet/minecraft/client/realms/RealmsPeriodicCheckers;
-accessible field net/minecraft/client/MinecraftClient userApiService Lcom/mojang/authlib/minecraft/UserApiService;
-accessible field net/minecraft/client/session/report/AbuseReportContext environment Lnet/minecraft/client/session/report/ReporterEnvironment;
-accessible field net/minecraft/client/realms/RealmsAvailability currentFuture Ljava/util/concurrent/CompletableFuture;
-accessible field net/minecraft/client/realms/RealmsClient instance Lnet/minecraft/client/realms/RealmsClient;
-
-mutable field net/minecraft/client/MinecraftClient session Lnet/minecraft/client/session/Session;
-mutable field net/minecraft/client/MinecraftClient splashTextLoader Lnet/minecraft/client/resource/SplashTextResourceSupplier;
-mutable field net/minecraft/client/resource/SplashTextResourceSupplier session Lnet/minecraft/client/session/Session;
-mutable field net/minecraft/client/MinecraftClient socialInteractionsManager Lnet/minecraft/client/network/SocialInteractionsManager;
-mutable field net/minecraft/client/MinecraftClient profileKeys Lnet/minecraft/client/session/ProfileKeys;
-mutable field net/minecraft/client/MinecraftClient abuseReportContext Lnet/minecraft/client/session/report/AbuseReportContext;
-mutable field net/minecraft/client/MinecraftClient realmsPeriodicCheckers Lnet/minecraft/client/realms/RealmsPeriodicCheckers;
-mutable field net/minecraft/client/MinecraftClient userApiService Lcom/mojang/authlib/minecraft/UserApiService;
-mutable field net/minecraft/client/realms/RealmsAvailability currentFuture Ljava/util/concurrent/CompletableFuture;
-
-accessible method net/minecraft/client/realms/RealmsClient <init> (Ljava/lang/String;Ljava/lang/String;Lnet/minecraft/client/MinecraftClient;)V
-
-## AuthUtils::connectToServer ##
-accessible method net/minecraft/client/gui/screen/multiplayer/ConnectScreen <init> (Lnet/minecraft/client/gui/screen/Screen;Lnet/minecraft/text/Text;)V
-accessible method net/minecraft/client/gui/screen/multiplayer/ConnectScreen connect (Lnet/minecraft/client/MinecraftClient;Lnet/minecraft/client/network/ServerAddress;Lnet/minecraft/client/network/ServerInfo;Lnet/minecraft/client/network/CookieStorage;)V
+accessWidener	v1	official
+accessible	field	net/minecraft/client/Minecraft	splashManager	Lnet/minecraft/client/resources/SplashManager;
+accessible	field	net/minecraft/client/Minecraft	user	Lnet/minecraft/client/User;
+accessible	field	net/minecraft/client/resources/SplashManager	user	Lnet/minecraft/client/User;
+accessible	field	net/minecraft/client/Minecraft	playerSocialManager	Lnet/minecraft/client/gui/screens/social/PlayerSocialManager;
+accessible	field	net/minecraft/client/Minecraft	profileKeyPairManager	Lnet/minecraft/client/multiplayer/ProfileKeyPairManager;
+accessible	field	net/minecraft/client/Minecraft	reportingContext	Lnet/minecraft/client/multiplayer/chat/report/ReportingContext;
+accessible	field	net/minecraft/client/Minecraft	realmsDataFetcher	Lcom/mojang/realmsclient/gui/RealmsDataFetcher;
+accessible	field	net/minecraft/client/Minecraft	userApiService	Lcom/mojang/authlib/minecraft/UserApiService;
+accessible	field	net/minecraft/client/multiplayer/chat/report/ReportingContext	environment	Lnet/minecraft/client/multiplayer/chat/report/ReportEnvironment;
+accessible	field	com/mojang/realmsclient/RealmsAvailability	future	Ljava/util/concurrent/CompletableFuture;
+accessible	field	com/mojang/realmsclient/client/RealmsClient	realmsClientInstance	Lcom/mojang/realmsclient/client/RealmsClient;
+mutable	field	net/minecraft/client/Minecraft	user	Lnet/minecraft/client/User;
+mutable	field	net/minecraft/client/Minecraft	splashManager	Lnet/minecraft/client/resources/SplashManager;
+mutable	field	net/minecraft/client/resources/SplashManager	user	Lnet/minecraft/client/User;
+mutable	field	net/minecraft/client/Minecraft	playerSocialManager	Lnet/minecraft/client/gui/screens/social/PlayerSocialManager;
+mutable	field	net/minecraft/client/Minecraft	profileKeyPairManager	Lnet/minecraft/client/multiplayer/ProfileKeyPairManager;
+mutable	field	net/minecraft/client/Minecraft	reportingContext	Lnet/minecraft/client/multiplayer/chat/report/ReportingContext;
+mutable	field	net/minecraft/client/Minecraft	realmsDataFetcher	Lcom/mojang/realmsclient/gui/RealmsDataFetcher;
+mutable	field	net/minecraft/client/Minecraft	userApiService	Lcom/mojang/authlib/minecraft/UserApiService;
+mutable	field	com/mojang/realmsclient/RealmsAvailability	future	Ljava/util/concurrent/CompletableFuture;
+accessible	method	com/mojang/realmsclient/client/RealmsClient	<init>	(Ljava/lang/String;Ljava/lang/String;Lnet/minecraft/client/Minecraft;)V
+accessible	method	net/minecraft/client/gui/screens/ConnectScreen	<init>	(Lnet/minecraft/client/gui/screens/Screen;Lnet/minecraft/network/chat/Component;)V
+accessible	method	net/minecraft/client/gui/screens/ConnectScreen	connect	(Lnet/minecraft/client/Minecraft;Lnet/minecraft/client/multiplayer/resolver/ServerAddress;Lnet/minecraft/client/multiplayer/ServerData;Lnet/minecraft/client/multiplayer/TransferState;)V

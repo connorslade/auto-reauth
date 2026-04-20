@@ -5,69 +5,69 @@ import com.connorcode.autoreauth.Main;
 import com.connorcode.autoreauth.Reauth;
 import com.connorcode.autoreauth.auth.AuthUtils;
 import com.connorcode.autoreauth.auth.MicrosoftAuth;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.PlayerSkinDrawer;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.tooltip.Tooltip;
-import net.minecraft.client.gui.widget.AlwaysSelectedEntryListWidget;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.DirectionalLayoutWidget;
-import net.minecraft.client.gui.widget.ThreePartsLayoutWidget;
-import net.minecraft.component.type.ProfileComponent;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Pair;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Semaphore;
 import java.util.function.Function;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.ObjectSelectionList;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.PlayerFaceExtractor;
+import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.layouts.HeaderAndFooterLayout;
+import net.minecraft.client.gui.layouts.LinearLayout;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.util.Tuple;
+import net.minecraft.world.item.component.ResolvableProfile;
 
 import static com.connorcode.autoreauth.Main.*;
 
 public class ConfigScreen extends Screen {
-    final ThreePartsLayoutWidget layout = new ThreePartsLayoutWidget(this, 33, 60);
+    final HeaderAndFooterLayout layout = new HeaderAndFooterLayout(this, 33, 60);
     AccountListWidget accountList;
 
-    ButtonWidget switchButton;
-    ButtonWidget deleteButton;
-    ButtonWidget makeDefaultButton;
+    Button switchButton;
+    Button deleteButton;
+    Button makeDefaultButton;
 
     Screen parent;
     Semaphore semaphore = new Semaphore(0);
     CompletableFuture<Void> reauth;
 
     public ConfigScreen(Screen screen) {
-        super(Text.of("AutoReauth Config"));
+        super(Component.nullToEmpty("AutoReauth Config"));
         this.parent = screen;
     }
 
     @Override
     protected void init() {
-        this.layout.addHeader(Text.of("AutoReauth Config"), this.textRenderer);
+        this.layout.addTitleHeader(Component.nullToEmpty("AutoReauth Config"), this.font);
 
-        var footer = this.layout.addFooter(DirectionalLayoutWidget.vertical().spacing(4));
-        footer.getMainPositioner().alignHorizontalCenter();
-        var footerTop = footer.add(DirectionalLayoutWidget.horizontal().spacing(4));
-        var footerBottom = footer.add(DirectionalLayoutWidget.horizontal().spacing(4));
+        var footer = this.layout.addToFooter(LinearLayout.vertical().spacing(4));
+        footer.defaultCellSetting().alignHorizontallyCenter();
+        var footerTop = footer.addChild(LinearLayout.horizontal().spacing(4));
+        var footerBottom = footer.addChild(LinearLayout.horizontal().spacing(4));
 
-        this.switchButton = footerTop.add(ButtonWidget.builder(Text.of("Switch"), (button) -> {
-            var selected = this.accountList.getSelectedOrNull();
+        this.switchButton = footerTop.addChild(Button.builder(Component.nullToEmpty("Switch"), (button) -> {
+            var selected = this.accountList.getSelected();
             if (selected != null) this.reauth = Reauth.attemptReauth(this, selected.account);
         }).width(74).build());
-        this.deleteButton = footerTop.add(ButtonWidget.builder(Text.of("Delete"), (button) -> {
-            var selected = this.accountList.getSelectedOrNull();
+        this.deleteButton = footerTop.addChild(Button.builder(Component.nullToEmpty("Delete"), (button) -> {
+            var selected = this.accountList.getSelected();
             if (selected != null) config.removeAccount(selected.account);
         }).width(74).build());
-        this.makeDefaultButton = footerTop.add(ButtonWidget.builder(Text.of("Make Default"), (button) -> {
-            var selected = this.accountList.getSelectedOrNull();
+        this.makeDefaultButton = footerTop.addChild(Button.builder(Component.nullToEmpty("Make Default"), (button) -> {
+            var selected = this.accountList.getSelected();
             if (selected != null) config.defaultAccount = selected.account;
         }).width(74).build());
-        footerTop.add(ButtonWidget.builder(Text.of("Add Account"), (button) -> MicrosoftAuth.getCode(semaphore)
+        footerTop.addChild(Button.builder(Component.nullToEmpty("Add Account"), (button) -> MicrosoftAuth.getCode(semaphore)
                 .thenCompose(MicrosoftAuth::getAccessToken).thenCompose(access -> MicrosoftAuth.authenticate(access)
-                        .thenApply(session -> new Pair<>(access, session))).thenAccept(pair -> {
-                    config.addAccount(new Config.Account(pair.getLeft(), pair.getRight()));
+                        .thenApply(session -> new Tuple<>(access, session))).thenAccept(pair -> {
+                    config.addAccount(new Config.Account(pair.getA(), pair.getB()));
                     config.save();
 
                     authStatus = AuthUtils.getAuthStatus();
@@ -78,71 +78,71 @@ public class ConfigScreen extends Screen {
                     log.error("Error re-authenticating", e);
                     Main.client.setScreen(new ErrorScreen(this, "Error re-authenticating", e.toString()));
                     return null;
-                })).width(74).tooltip(Tooltip.of(Text.of("Warning: Tokens are stored in your home folder."))).build());
+                })).width(74).tooltip(Tooltip.create(Component.nullToEmpty("Warning: Tokens are stored in your home folder."))).build());
 
 
-        footerBottom.add(callbackButton(clicked -> {
+        footerBottom.addChild(callbackButton(clicked -> {
             config.debug ^= clicked;
             return "Debug: " + (config.debug ? "On" : "Off");
-        }).width(100).tooltip(Tooltip.of(Text.of("Warning: Debug mode will send authentication tokens in the log.")))
+        }).width(100).tooltip(Tooltip.create(Component.nullToEmpty("Warning: Debug mode will send authentication tokens in the log.")))
                 .build());
-        footerBottom.add(callbackButton(clicked -> {
+        footerBottom.addChild(callbackButton(clicked -> {
             config.auto ^= clicked;
             return "Reauth: " + (config.auto ? "Auto" : "Manual");
         }).width(100)
-                .tooltip(Tooltip.of(Text.of("Whether your session should be automatically re-authenticated on expiration.")))
+                .tooltip(Tooltip.create(Component.nullToEmpty("Whether your session should be automatically re-authenticated on expiration.")))
                 .build());
-        footerBottom.add(ButtonWidget.builder(Text.of("Back"), (button) -> {
+        footerBottom.addChild(Button.builder(Component.nullToEmpty("Back"), (button) -> {
             config.save();
             Main.client.setScreen(this.parent);
         }).width(100).build());
 
-        this.accountList = this.layout.addBody(new AccountListWidget(this.width, this.layout.getContentHeight(), this.layout.getHeaderHeight(), 32));
-        this.layout.forEachChild(this::addDrawableChild);
-        this.refreshWidgetPositions();
+        this.accountList = this.layout.addToContents(new AccountListWidget(this.width, this.layout.getContentHeight(), this.layout.getHeaderHeight(), 32));
+        this.layout.visitWidgets(this::addRenderableWidget);
+        this.repositionElements();
     }
 
     @Override
-    protected void refreshWidgetPositions() {
-        this.layout.refreshPositions();
-        this.accountList.position(this.width, this.layout);
+    protected void repositionElements() {
+        this.layout.arrangeElements();
+        this.accountList.updateSize(this.width, this.layout);
     }
 
     @Override
-    public void close() {
+    public void onClose() {
         semaphore.release();
         Main.client.setScreen(this.parent);
     }
 
     @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        var selected = this.accountList.getSelectedOrNull();
+    public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
+        var selected = this.accountList.getSelected();
         var uuid = Optional.ofNullable(selected).map(x -> x.account.uuid());
 
-        this.switchButton.active = (reauth == null || reauth.isDone()) && uuid.isPresent() && !Main.client.session.getUuidOrNull()
+        this.switchButton.active = (reauth == null || reauth.isDone()) && uuid.isPresent() && !Main.client.user.getProfileId()
                 .equals(uuid.get());
         this.makeDefaultButton.active = uuid.isPresent() && !config.isDefault(selected.account);
         this.deleteButton.active = uuid.isPresent();
 
         // ↓ eh prob shouldn't call this every frame but like whatever...
         this.accountList.refreshEntries();
-        super.render(context, mouseX, mouseY, delta);
+        super.extractRenderState(context, mouseX, mouseY, delta);
     }
 
-    private ButtonWidget.Builder callbackButton(Function<Boolean, String> callback) {
-        return ButtonWidget.builder(Text.of(callback.apply(false)), (button) -> {
-            button.setMessage(Text.of(callback.apply(true)));
+    private Button.Builder callbackButton(Function<Boolean, String> callback) {
+        return Button.builder(Component.nullToEmpty(callback.apply(false)), (button) -> {
+            button.setMessage(Component.nullToEmpty(callback.apply(true)));
         });
     }
 
-    class AccountListWidget extends AlwaysSelectedEntryListWidget<AccountListEntry> {
+    class AccountListWidget extends ObjectSelectionList<AccountListEntry> {
         public AccountListWidget(int width, int height, int y, int itemHeight) {
             super(Main.client, width, height, y, itemHeight);
             this.refreshEntries();
         }
 
         void refreshEntries() {
-            var selected = this.getSelectedOrNull();
+            var selected = this.getSelected();
             this.clearEntries();
             for (var account : config.accounts)
                 this.addEntry(new AccountListEntry(account));
@@ -161,7 +161,7 @@ public class ConfigScreen extends Screen {
         @Override
         public void setSelected(@Nullable ConfigScreen.AccountListEntry entry) {
             super.setSelected(entry);
-            ConfigScreen.this.refreshWidgetPositions();
+            ConfigScreen.this.repositionElements();
         }
     }
 
@@ -173,27 +173,27 @@ public class ConfigScreen extends Screen {
         }
 
         @Override
-        public Text getNarration() {
-            return Text.literal(String.format("Account for %s", this.account.username()));
+        public Component getNarration() {
+            return Component.literal(String.format("Account for %s", this.account.username()));
         }
 
         @Override
-        public void render(DrawContext context, int mouseX, int mouseY, boolean hovered, float deltaTicks) {
-            assert client != null;
-            var skin = client.getPlayerSkinCache().get(ProfileComponent.ofDynamic(this.account.uuid())).getTextures();
-            PlayerSkinDrawer.draw(context, skin, this.getContentX(), this.getContentY(), this.getHeight() - 4);
+        public void extractContent(GuiGraphicsExtractor context, int mouseX, int mouseY, boolean hovered, float deltaTicks) {
+            assert minecraft != null;
+            var skin = minecraft.playerSkinRenderCache().getOrDefault(ResolvableProfile.createUnresolved(this.account.uuid())).playerSkin();
+            PlayerFaceExtractor.extractRenderState(context, skin, this.getContentX(), this.getContentY(), this.getHeight() - 4);
 
-            var txt = client.textRenderer;
+            var txt = minecraft.font;
             var contentX = this.getContentX() + this.getHeight();
-            context.drawText(txt, this.account.username(), contentX, this.getContentY() + 2, 0xFFFFFFFF, true);
-            context.drawText(txt, Text.literal(this.account.uuid().toString())
-                    .formatted(Formatting.GRAY), contentX, this.getContentY() + 2 + txt.fontHeight + txt.fontHeight / 3, 0xFFFFFFFF, true);
+            context.text(txt, this.account.username(), contentX, this.getContentY() + 2, 0xFFFFFFFF, true);
+            context.text(txt, Component.literal(this.account.uuid().toString())
+                    .withStyle(ChatFormatting.GRAY), contentX, this.getContentY() + 2 + txt.lineHeight + txt.lineHeight / 3, 0xFFFFFFFF, true);
 
-            var text = Text.empty();
-            if (config.isDefault(account)) text.append(Text.literal("[DEFAULT]").formatted(Formatting.GOLD));
-            if (client.session.getUuidOrNull().equals(account.uuid()))
-                text.append(Text.literal(" [ACTIVE]").formatted(Formatting.GREEN));
-            context.drawText(txt, text, this.getContentX() + this.getContentWidth() - txt.getWidth(text), this.getContentY() + 2, 0xFFFFFFFF, true);
+            var text = Component.empty();
+            if (config.isDefault(account)) text.append(Component.literal("[DEFAULT]").withStyle(ChatFormatting.GOLD));
+            if (minecraft.user.getProfileId().equals(account.uuid()))
+                text.append(Component.literal(" [ACTIVE]").withStyle(ChatFormatting.GREEN));
+            context.text(txt, text, this.getContentX() + this.getContentWidth() - txt.width(text), this.getContentY() + 2, 0xFFFFFFFF, true);
         }
     }
 }
