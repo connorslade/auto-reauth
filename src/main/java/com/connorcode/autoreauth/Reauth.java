@@ -70,10 +70,12 @@ public class Reauth {
     }
 
     public static void refreshAuthStatus() {
-//        This method will be called whenever the Multiplayer tab is opened
-//        or the servers are refreshed (as refreshing just secretly reopens the list)
+        // This method will be called whenever the Multiplayer tab is opened
+        // or the servers are refreshed (as refreshing just secretly reopens the list)
+
         var now = System.currentTimeMillis();
-        if (lastUpdate + 1000 * 5 < now) { // Now we check for a 5s delay and I stole this code from line 53
+        // Now we check for a 5s delay and I stole this code from line 53
+        if (lastUpdate + 1000 * 5 < now) {
              lastUpdate = now;
              authStatus = AuthUtils.getAuthStatus();
         }
