@@ -17,7 +17,7 @@ public class Misc {
     }
 
     public static void sendToast(String title, String message) {
-        client.schedule(() -> client.getToastManager()
+        client.execute(() -> client.gui.toastManager()
                 .addToast(new SystemToast(SystemToast.SystemToastId.PERIODIC_NOTIFICATION, Component.nullToEmpty(title), Component.nullToEmpty(message))));
 
     }

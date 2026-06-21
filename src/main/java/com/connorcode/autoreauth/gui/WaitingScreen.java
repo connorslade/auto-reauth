@@ -18,7 +18,7 @@ public abstract class WaitingScreen extends Screen {
 
     @Override
     public void onClose() {
-        Main.client.setScreen(parent);
+        Main.client.gui.setScreen(parent);
     }
 
     @Override
