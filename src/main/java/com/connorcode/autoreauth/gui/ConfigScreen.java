@@ -21,8 +21,8 @@ import net.minecraft.client.gui.layouts.HeaderAndFooterLayout;
 import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.Tuple;
 import net.minecraft.world.item.component.ResolvableProfile;
+import oshi.util.tuples.Pair;
 
 import static com.connorcode.autoreauth.Main.*;
 
@@ -52,21 +52,21 @@ public class ConfigScreen extends Screen {
         var footerTop = footer.addChild(LinearLayout.horizontal().spacing(4));
         var footerBottom = footer.addChild(LinearLayout.horizontal().spacing(4));
 
-        this.switchButton = footerTop.addChild(Button.builder(Component.nullToEmpty("Switch"), (button) -> {
+        this.switchButton = footerTop.addChild(Button.builder(Component.nullToEmpty("Switch"), (_) -> {
             var selected = this.accountList.getSelected();
             if (selected != null) this.reauth = Reauth.attemptReauth(this, selected.account);
         }).width(74).build());
-        this.deleteButton = footerTop.addChild(Button.builder(Component.nullToEmpty("Delete"), (button) -> {
+        this.deleteButton = footerTop.addChild(Button.builder(Component.nullToEmpty("Delete"), (_) -> {
             var selected = this.accountList.getSelected();
             if (selected != null) config.removeAccount(selected.account);
         }).width(74).build());
-        this.makeDefaultButton = footerTop.addChild(Button.builder(Component.nullToEmpty("Make Default"), (button) -> {
+        this.makeDefaultButton = footerTop.addChild(Button.builder(Component.nullToEmpty("Make Default"), (_) -> {
             var selected = this.accountList.getSelected();
             if (selected != null) config.defaultAccount = selected.account;
         }).width(74).build());
-        footerTop.addChild(Button.builder(Component.nullToEmpty("Add Account"), (button) -> MicrosoftAuth.getCode(semaphore)
+        footerTop.addChild(Button.builder(Component.nullToEmpty("Add Account"), (_) -> MicrosoftAuth.getCode(semaphore)
                 .thenCompose(MicrosoftAuth::getAccessToken).thenCompose(access -> MicrosoftAuth.authenticate(access)
-                        .thenApply(session -> new Tuple<>(access, session))).thenAccept(pair -> {
+                        .thenApply(session -> new Pair<>(access, session))).thenAccept(pair -> {
                     config.addAccount(new Config.Account(pair.getA(), pair.getB()));
                     config.save();
 
@@ -76,7 +76,7 @@ public class ConfigScreen extends Screen {
                 }).exceptionally(e -> {
                     if (e.getCause() instanceof MicrosoftAuth.AbortException) return null;
                     log.error("Error re-authenticating", e);
-                    Main.client.setScreen(new ErrorScreen(this, "Error re-authenticating", e.toString()));
+                    Main.client.gui.setScreen(new ErrorScreen(this, "Error re-authenticating", e.toString()));
                     return null;
                 })).width(74).tooltip(Tooltip.create(Component.nullToEmpty("Warning: Tokens are stored in your home folder."))).build());
 
@@ -92,9 +92,9 @@ public class ConfigScreen extends Screen {
         }).width(100)
                 .tooltip(Tooltip.create(Component.nullToEmpty("Whether your session should be automatically re-authenticated on expiration.")))
                 .build());
-        footerBottom.addChild(Button.builder(Component.nullToEmpty("Back"), (button) -> {
+        footerBottom.addChild(Button.builder(Component.nullToEmpty("Back"), (_) -> {
             config.save();
-            Main.client.setScreen(this.parent);
+            Main.client.gui.setScreen(this.parent);
         }).width(100).build());
 
         this.accountList = this.layout.addToContents(new AccountListWidget(this.width, this.layout.getContentHeight(), this.layout.getHeaderHeight(), 32));
@@ -111,7 +111,7 @@ public class ConfigScreen extends Screen {
     @Override
     public void onClose() {
         semaphore.release();
-        Main.client.setScreen(this.parent);
+        Main.client.gui.setScreen(this.parent);
     }
 
     @Override

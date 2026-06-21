@@ -29,7 +29,7 @@ public class WaitingForLogin extends Screen {
     @Override
     public void onClose() {
         semaphore.release();
-        Main.client.setScreen(parent);
+        Main.client.gui.setScreen(parent);
     }
 
     @Override
@@ -37,9 +37,9 @@ public class WaitingForLogin extends Screen {
         var adder = this.grid.createRowHelper(2);
         var positioner = adder.newCellSettings().alignHorizontallyCenter();
 
-        adder.addChild(Button.builder(Component.nullToEmpty("Copy Auth Link"), (button) -> Main.client.keyboardHandler.setClipboard(redirect.toString()))
+        adder.addChild(Button.builder(Component.nullToEmpty("Copy Auth Link"), (_) -> Main.client.keyboardHandler.setClipboard(redirect.toString()))
                 .build(), positioner);
-        adder.addChild(Button.builder(Component.nullToEmpty("Abort"), (button) -> this.onClose()).build(), positioner);
+        adder.addChild(Button.builder(Component.nullToEmpty("Abort"), (_) -> this.onClose()).build(), positioner);
 
         this.grid.visitWidgets(this::addRenderableWidget);
         this.grid.arrangeElements();
@@ -48,7 +48,7 @@ public class WaitingForLogin extends Screen {
 
     @Override
     public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
-        if (!semaphore.hasQueuedThreads()) Main.client.setScreen(parent);
+        if (!semaphore.hasQueuedThreads()) Main.client.gui.setScreen(parent);
 
         super.extractRenderState(context, mouseX, mouseY, delta);
         var txt = Main.client.font;

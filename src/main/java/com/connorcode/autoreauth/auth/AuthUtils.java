@@ -1,6 +1,7 @@
 package com.connorcode.autoreauth.auth;
 
 import com.mojang.authlib.exceptions.AuthenticationException;
+import com.mojang.authlib.yggdrasil.FriendsService;
 import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import com.mojang.authlib.yggdrasil.YggdrasilMinecraftSessionService;
 import com.mojang.realmsclient.RealmsAvailability;
@@ -12,6 +13,7 @@ import net.minecraft.client.User;
 import net.minecraft.client.gui.screens.ConnectScreen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.gui.screens.social.PlayerSocialManager;
+import net.minecraft.client.gui.screens.social.RemoteFriendListUpdateHandler;
 import net.minecraft.client.multiplayer.ProfileKeyPairManager;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.chat.report.ReportEnvironment;
@@ -50,10 +52,12 @@ public class AuthUtils {
     public static void setSession(User session) throws AuthenticationException {
         log.info("Overwriting session with {} ({})", session.getName(), session.getProfileId());
         client.user = session;
-        client.splashManager.user = session;
+        client.gui.splashManager().user = session;
         YggdrasilAuthenticationService yggdrasilAuthenticationService = client.isOfflineDeveloperMode() ? YggdrasilAuthenticationService.createOffline(client.getProxy()) : new YggdrasilAuthenticationService(client.getProxy());
         client.userApiService = yggdrasilAuthenticationService.createUserApiService(session.getAccessToken());
-        client.playerSocialManager = new PlayerSocialManager(client, client.userApiService);
+        FriendsService friendsService = yggdrasilAuthenticationService.createFriendsService(client.user.getAccessToken());
+        RemoteFriendListUpdateHandler remoteFriendListUpdateHandler = new RemoteFriendListUpdateHandler(friendsService, client);
+        client.playerSocialManager = new PlayerSocialManager(client, client.userApiService, friendsService, remoteFriendListUpdateHandler);
         client.profileKeyPairManager = ProfileKeyPairManager.create(client.userApiService, session, client.gameDirectory.toPath());
         client.reportingContext = ReportingContext.create(client.reportingContext.environment, client.userApiService);
         RealmsAvailability.future = null;
@@ -69,7 +73,7 @@ public class AuthUtils {
         client.prepareForMultiplayer();
         client.updateReportEnvironment(ReportEnvironment.thirdParty(info != null ? info.ip : address.getHost()));
         client.quickPlayLog().setWorldData(QuickPlayLog.Type.MULTIPLAYER, info.ip, info.name);
-        client.setScreen(connectScreen);
+        client.gui.setScreen(connectScreen);
         connectScreen.connect(client, address, info, null);
     }
 

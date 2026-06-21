@@ -1,6 +1,7 @@
 package com.connorcode.autoreauth.mixin;
 
 import com.connorcode.autoreauth.gui.ConfigScreen;
+import org.jspecify.annotations.NonNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -32,7 +33,7 @@ public class MultiplayerScreenMixin extends Screen {
     }
 
     @Override
-    public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
+    public void extractRenderState(@NonNull GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
         super.extractRenderState(context, mouseX, mouseY, delta);
         this.hovered = renderAuthStatus(context, mouseX, mouseY);
     }
@@ -43,8 +44,8 @@ public class MultiplayerScreenMixin extends Screen {
     }
 
     @Override
-    public boolean mouseClicked(MouseButtonEvent click, boolean doubled) {
-        if (this.hovered) Objects.requireNonNull(minecraft).setScreen(new ConfigScreen(this));
+    public boolean mouseClicked(@NonNull MouseButtonEvent click, boolean doubled) {
+        if (this.hovered) Objects.requireNonNull(minecraft).gui.setScreen(new ConfigScreen(this));
         return super.mouseClicked(click, doubled);
     }
 }

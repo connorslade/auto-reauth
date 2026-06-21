@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import net.minecraft.util.Tuple;
+import oshi.util.tuples.Pair;
 
 public class NetworkUtils {
     public static String urlEncode(String str) {
@@ -47,14 +47,14 @@ public class NetworkUtils {
 
     public static class URIBuilder {
         String base;
-        List<Tuple<String, String>> query = new ArrayList<>();
+        List<Pair<String, String>> query = new ArrayList<>();
 
         public URIBuilder(String base) {
             this.base = base;
         }
 
         public void addParameter(String key, String value) {
-            this.query.add(new Tuple<>(key, value));
+            this.query.add(new Pair<>(key, value));
         }
 
         public URI build() {

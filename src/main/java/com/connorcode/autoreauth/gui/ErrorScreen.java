@@ -22,14 +22,14 @@ public class ErrorScreen extends Screen {
 
     @Override
     protected void init() {
-        addRenderableWidget(Button.builder(Component.nullToEmpty("Back"), (button) -> {
-            Main.client.setScreen(parent);
+        addRenderableWidget(Button.builder(Component.nullToEmpty("Back"), (_) -> {
+            Main.client.gui.setScreen(parent);
         }).size(200, 20).pos(this.width / 2 - 100, this.height - 30).build());
     }
 
     @Override
     public void onClose() {
-        Main.client.setScreen(parent);
+        Main.client.gui.setScreen(parent);
     }
 
     @Override
