@@ -1,5 +1,7 @@
 .gradle
 build
+bin
+.apt_generated
 run
 
 .vscode
