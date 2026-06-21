@@ -3,6 +3,7 @@
   "minVersion": "0.8",
   "package": "com.connorcode.autoreauth.mixin",
   "compatibilityLevel": "JAVA_25",
+  "refmap": "auto-reauth-refmap.json",
   "mixins": [
   ],
   "client": [

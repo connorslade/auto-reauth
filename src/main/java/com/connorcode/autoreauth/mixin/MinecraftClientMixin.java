@@ -1,3 +1,4 @@
+// trigger rebuild
 package com.connorcode.autoreauth.mixin;
 
 import org.jetbrains.annotations.Nullable;
@@ -16,14 +17,13 @@ import net.minecraft.client.gui.screens.Screen;
 @Mixin(Minecraft.class)
 public class MinecraftClientMixin {
     @Shadow
-    @Nullable
-    public Screen screen;
+    public net.minecraft.client.gui.Gui gui;
 
     @Inject(at = @At("HEAD"), method = "tick")
     void onTick(CallbackInfo ci) {
         // So janky sob but it's needed for meteor client compat
-        if (this.screen instanceof DisconnectedScreen) {
-            tickAuthStatus(this.screen);
+        if (this.gui.screen() instanceof DisconnectedScreen) {
+            tickAuthStatus(this.gui.screen());
         }
     }
 }
