@@ -21,7 +21,6 @@ import net.minecraft.client.gui.layouts.HeaderAndFooterLayout;
 import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.Tuple;
 import net.minecraft.world.item.component.ResolvableProfile;
 
 import static com.connorcode.autoreauth.Main.*;
@@ -66,8 +65,8 @@ public class ConfigScreen extends Screen {
         }).width(74).build());
         footerTop.addChild(Button.builder(Component.nullToEmpty("Add Account"), (button) -> MicrosoftAuth.getCode(semaphore)
                 .thenCompose(MicrosoftAuth::getAccessToken).thenCompose(access -> MicrosoftAuth.authenticate(access)
-                        .thenApply(session -> new Tuple<>(access, session))).thenAccept(pair -> {
-                    config.addAccount(new Config.Account(pair.getA(), pair.getB()));
+                        .thenApply(session -> new java.util.AbstractMap.SimpleEntry<>(access, session))).thenAccept(pair -> {
+                    config.addAccount(new Config.Account(pair.getKey(), pair.getValue()));
                     config.save();
 
                     authStatus = AuthUtils.getAuthStatus();
@@ -76,7 +75,7 @@ public class ConfigScreen extends Screen {
                 }).exceptionally(e -> {
                     if (e.getCause() instanceof MicrosoftAuth.AbortException) return null;
                     log.error("Error re-authenticating", e);
-                    Main.client.setScreen(new ErrorScreen(this, "Error re-authenticating", e.toString()));
+                    Main.client.execute(() -> Main.client.gui.setScreen(new ErrorScreen(this, "Error re-authenticating", e.toString())));
                     return null;
                 })).width(74).tooltip(Tooltip.create(Component.nullToEmpty("Warning: Tokens are stored in your home folder."))).build());
 
@@ -94,7 +93,7 @@ public class ConfigScreen extends Screen {
                 .build());
         footerBottom.addChild(Button.builder(Component.nullToEmpty("Back"), (button) -> {
             config.save();
-            Main.client.setScreen(this.parent);
+            Main.client.gui.setScreen(this.parent);
         }).width(100).build());
 
         this.accountList = this.layout.addToContents(new AccountListWidget(this.width, this.layout.getContentHeight(), this.layout.getHeaderHeight(), 32));
@@ -111,7 +110,7 @@ public class ConfigScreen extends Screen {
     @Override
     public void onClose() {
         semaphore.release();
-        Main.client.setScreen(this.parent);
+        Main.client.gui.setScreen(this.parent);
     }
 
     @Override

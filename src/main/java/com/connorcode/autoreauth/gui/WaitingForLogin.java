@@ -29,7 +29,7 @@ public class WaitingForLogin extends Screen {
     @Override
     public void onClose() {
         semaphore.release();
-        Main.client.setScreen(parent);
+        Main.client.gui.setScreen(parent);
     }
 
     @Override
@@ -48,7 +48,7 @@ public class WaitingForLogin extends Screen {
 
     @Override
     public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
-        if (!semaphore.hasQueuedThreads()) Main.client.setScreen(parent);
+        if (!semaphore.hasQueuedThreads()) Main.client.gui.setScreen(parent);
 
         super.extractRenderState(context, mouseX, mouseY, delta);
         var txt = Main.client.font;

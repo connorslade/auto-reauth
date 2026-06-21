@@ -50,10 +50,9 @@ public class AuthUtils {
     public static void setSession(User session) throws AuthenticationException {
         log.info("Overwriting session with {} ({})", session.getName(), session.getProfileId());
         client.user = session;
-        client.splashManager.user = session;
         YggdrasilAuthenticationService yggdrasilAuthenticationService = client.isOfflineDeveloperMode() ? YggdrasilAuthenticationService.createOffline(client.getProxy()) : new YggdrasilAuthenticationService(client.getProxy());
         client.userApiService = yggdrasilAuthenticationService.createUserApiService(session.getAccessToken());
-        client.playerSocialManager = new PlayerSocialManager(client, client.userApiService);
+        client.playerSocialManager = new PlayerSocialManager(client, client.userApiService, yggdrasilAuthenticationService.createFriendsService(session.getAccessToken()), client.remoteFriendListUpdateHandler);
         client.profileKeyPairManager = ProfileKeyPairManager.create(client.userApiService, session, client.gameDirectory.toPath());
         client.reportingContext = ReportingContext.create(client.reportingContext.environment, client.userApiService);
         RealmsAvailability.future = null;
@@ -69,7 +68,7 @@ public class AuthUtils {
         client.prepareForMultiplayer();
         client.updateReportEnvironment(ReportEnvironment.thirdParty(info != null ? info.ip : address.getHost()));
         client.quickPlayLog().setWorldData(QuickPlayLog.Type.MULTIPLAYER, info.ip, info.name);
-        client.setScreen(connectScreen);
+        client.gui.setScreen(connectScreen);
         connectScreen.connect(client, address, info, null);
     }
 

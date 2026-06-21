@@ -22,7 +22,7 @@ public class ConnectScreenMixin {
     @Inject(method = "startConnecting(Lnet/minecraft/client/gui/screens/Screen;Lnet/minecraft/client/Minecraft;Lnet/minecraft/client/multiplayer/resolver/ServerAddress;Lnet/minecraft/client/multiplayer/ServerData;ZLnet/minecraft/client/multiplayer/TransferState;)V", at = @At("HEAD"), cancellable = true)
     private static void onConnect(Screen screen, Minecraft client, ServerAddress address, ServerData info, boolean quickPlay, @Nullable TransferState cookieStorage, CallbackInfo ci) {
         if (!config.auto || authStatus.getNow(AuthUtils.AuthStatus.Invalid).isOnline()) return;
-        client.setScreen(new ServerWaitingScreen(client.screen, address, info, quickPlay));
+        client.gui.setScreen(new ServerWaitingScreen(client.gui.screen(), address, info, quickPlay));
         ci.cancel();
     }
 }

@@ -5,11 +5,11 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.net.http.HttpRequest;
 import java.nio.charset.StandardCharsets;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import net.minecraft.util.Tuple;
 
 public class NetworkUtils {
     public static String urlEncode(String str) {
@@ -47,14 +47,14 @@ public class NetworkUtils {
 
     public static class URIBuilder {
         String base;
-        List<Tuple<String, String>> query = new ArrayList<>();
+        List<Map.Entry<String, String>> query = new ArrayList<>();
 
         public URIBuilder(String base) {
             this.base = base;
         }
 
         public void addParameter(String key, String value) {
-            this.query.add(new Tuple<>(key, value));
+            this.query.add(new AbstractMap.SimpleEntry<>(key, value));
         }
 
         public URI build() {
@@ -64,9 +64,9 @@ public class NetworkUtils {
             for (int i = 0; i < this.query.size(); i++) {
                 if (i != 0) builder.append("&");
                 var param = this.query.get(i);
-                builder.append(urlEncode(param.getA()));
+                builder.append(urlEncode(param.getKey()));
                 builder.append("=");
-                builder.append(urlEncode(param.getB()));
+                builder.append(urlEncode(param.getValue()));
             }
 
             return URI.create(builder.toString());

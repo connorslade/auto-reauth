@@ -44,7 +44,7 @@ public class MultiplayerScreenMixin extends Screen {
 
     @Override
     public boolean mouseClicked(MouseButtonEvent click, boolean doubled) {
-        if (this.hovered) Objects.requireNonNull(minecraft).setScreen(new ConfigScreen(this));
+        if (this.hovered) Objects.requireNonNull(minecraft).gui.setScreen(new ConfigScreen(this));
         return super.mouseClicked(click, doubled);
     }
 }

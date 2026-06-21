@@ -28,7 +28,7 @@ public class Reauth {
         };
 
         var txt = client.font;
-        if (METEOR_LOADED && client.screen instanceof JoinMultiplayerScreen) {
+        if (METEOR_LOADED && client.gui.screen() instanceof JoinMultiplayerScreen) {
             var text = Component.literal("[ ").append(Component.literal(String.valueOf(status)).withStyle(color))
                     .append(Component.literal(" ]"));
             var x = txt.width("Logged in as  " + client.getUser().getName()) + 3;
@@ -91,7 +91,7 @@ public class Reauth {
             Misc.sendToast("AutoReauth", String.format("Authenticated as %s!", session.getName()));
         }).exceptionally(e -> {
             log.error("Error re-authenticating", e);
-            client.schedule(() -> client.setScreen(new ErrorScreen(parent, "Error re-authenticating", e.toString())));
+            client.execute(() -> client.gui.setScreen(new ErrorScreen(parent, "Error re-authenticating", e.toString())));
             return null;
         });
     }

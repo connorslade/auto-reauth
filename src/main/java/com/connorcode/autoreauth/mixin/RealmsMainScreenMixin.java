@@ -54,13 +54,13 @@ public class RealmsMainScreenMixin extends Screen {
 
         log.info("Invalid Realms auth, re-authenticating...");
         authStatus = CompletableFuture.completedFuture(AuthUtils.AuthStatus.Invalid);
-        Main.client.setScreen(new RealmsWaitingScreen(new TitleScreen()));
+        Main.client.gui.setScreen(new RealmsWaitingScreen(new TitleScreen()));
         ci.cancel();
     }
 
     @Override
     public boolean mouseClicked(MouseButtonEvent click, boolean doubled) {
-        if (this.hovered) Objects.requireNonNull(minecraft).setScreen(new ConfigScreen(this));
+        if (this.hovered) Objects.requireNonNull(minecraft).gui.setScreen(new ConfigScreen(this));
         return super.mouseClicked(click, doubled);
     }
 }
