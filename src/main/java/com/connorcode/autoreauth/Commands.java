@@ -11,8 +11,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.common.ClientboundDisconnectPacket;
 import java.util.Objects;
 
-import static com.connorcode.autoreauth.Main.client;
-import static com.connorcode.autoreauth.Main.config;
+import static com.connorcode.autoreauth.Main.*;
 
 public class Commands {
     public static void register(CommandDispatcher<FabricClientCommandSource> dispatcher, CommandBuildContext registryAccess) {
@@ -25,6 +24,8 @@ public class Commands {
                     } catch (AuthenticationException e) {
                         // ignored
                     }
+                    sentToast = false;
+                    authStatus = AuthUtils.getAuthStatus();
                     context.getSource().sendFeedback(Component.nullToEmpty("Session invalidated"));
                     return 1;
                 })).then(ClientCommands.literal("kick").executes(context -> {

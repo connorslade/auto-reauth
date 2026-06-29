@@ -8,6 +8,7 @@ import com.mojang.realmsclient.client.RealmsClient;
 import com.mojang.realmsclient.gui.RealmsDataFetcher;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.User;
 import net.minecraft.client.gui.screens.ConnectScreen;
 import net.minecraft.client.gui.screens.TitleScreen;
@@ -55,11 +56,25 @@ public class AuthUtils {
         client.playerSocialManager = new PlayerSocialManager(client, client.userApiService, yggdrasilAuthenticationService.createFriendsService(session.getAccessToken()), client.remoteFriendListUpdateHandler);
         client.profileKeyPairManager = ProfileKeyPairManager.create(client.userApiService, session, client.gameDirectory.toPath());
         client.reportingContext = ReportingContext.create(client.reportingContext.environment, client.userApiService);
-        RealmsAvailability.future = null;
+        try {
+            var f = RealmsAvailability.class.getDeclaredField("future");
+            f.setAccessible(true);
+            f.set(null, null);
+        } catch (ReflectiveOperationException e) {
+            log.warn("Could not reset RealmsAvailability.future", e);
+        }
 
-        var realmsClient = new RealmsClient(session.getSessionId(), session.getName(), client);
-        RealmsClient.realmsClientInstance = realmsClient;
-        client.realmsDataFetcher = new RealmsDataFetcher(realmsClient);
+        try {
+            var ctor = RealmsClient.class.getDeclaredConstructor(String.class, String.class, Minecraft.class);
+            ctor.setAccessible(true);
+            var realmsClient = (RealmsClient) ctor.newInstance(session.getSessionId(), session.getName(), client);
+            var instanceField = RealmsClient.class.getDeclaredField("realmsClientInstance");
+            instanceField.setAccessible(true);
+            instanceField.set(null, realmsClient);
+            client.realmsDataFetcher = new RealmsDataFetcher(realmsClient);
+        } catch (ReflectiveOperationException e) {
+            log.warn("Could not reset RealmsClient", e);
+        }
     }
 
     public static void connectToServer(ServerAddress address, ServerData info, boolean quickPlay) {
