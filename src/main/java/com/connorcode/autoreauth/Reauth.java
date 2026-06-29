@@ -91,7 +91,13 @@ public class Reauth {
             Misc.sendToast("AutoReauth", String.format("Authenticated as %s!", session.getName()));
         }).exceptionally(e -> {
             log.error("Error re-authenticating", e);
-            client.execute(() -> client.gui.setScreen(new ErrorScreen(parent, "Error re-authenticating", e.toString())));
+            Misc.sendToast("AutoReauth", "Reauthentication failed, retrying in 30 sec");
+            CompletableFuture.runAsync(() -> {
+                try {
+                    Thread.sleep(1000 * 30);
+                } catch (InterruptedException ignored) {}
+                sentToast = false;
+            });
             return null;
         });
     }

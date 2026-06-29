@@ -7,15 +7,11 @@ accessible	field	net/minecraft/client/Minecraft	realmsDataFetcher	Lcom/mojang/re
 accessible	field	net/minecraft/client/Minecraft	userApiService	Lcom/mojang/authlib/minecraft/UserApiService;
 accessible	field	net/minecraft/client/multiplayer/chat/report/ReportingContext	environment	Lnet/minecraft/client/multiplayer/chat/report/ReportEnvironment;
 accessible	field	net/minecraft/client/Minecraft	remoteFriendListUpdateHandler	Lnet/minecraft/client/gui/screens/social/RemoteFriendListUpdateHandler;
-accessible	field	com/mojang/realmsclient/RealmsAvailability	future	Ljava/util/concurrent/CompletableFuture;
-accessible	field	com/mojang/realmsclient/client/RealmsClient	realmsClientInstance	Lcom/mojang/realmsclient/client/RealmsClient;
 mutable	field	net/minecraft/client/Minecraft	user	Lnet/minecraft/client/User;
 mutable	field	net/minecraft/client/Minecraft	playerSocialManager	Lnet/minecraft/client/gui/screens/social/PlayerSocialManager;
 mutable	field	net/minecraft/client/Minecraft	profileKeyPairManager	Lnet/minecraft/client/multiplayer/ProfileKeyPairManager;
 mutable	field	net/minecraft/client/Minecraft	reportingContext	Lnet/minecraft/client/multiplayer/chat/report/ReportingContext;
 mutable	field	net/minecraft/client/Minecraft	realmsDataFetcher	Lcom/mojang/realmsclient/gui/RealmsDataFetcher;
 mutable	field	net/minecraft/client/Minecraft	userApiService	Lcom/mojang/authlib/minecraft/UserApiService;
-mutable	field	com/mojang/realmsclient/RealmsAvailability	future	Ljava/util/concurrent/CompletableFuture;
-accessible	method	com/mojang/realmsclient/client/RealmsClient	<init>	(Ljava/lang/String;Ljava/lang/String;Lnet/minecraft/client/Minecraft;)V
 accessible	method	net/minecraft/client/gui/screens/ConnectScreen	<init>	(Lnet/minecraft/client/gui/screens/Screen;Lnet/minecraft/network/chat/Component;)V
 accessible	method	net/minecraft/client/gui/screens/ConnectScreen	connect	(Lnet/minecraft/client/Minecraft;Lnet/minecraft/client/multiplayer/resolver/ServerAddress;Lnet/minecraft/client/multiplayer/ServerData;Lnet/minecraft/client/multiplayer/TransferState;)V
