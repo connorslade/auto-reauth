@@ -2,7 +2,6 @@ package com.connorcode.autoreauth;
 
 import com.connorcode.autoreauth.auth.AuthUtils;
 import com.connorcode.autoreauth.auth.MicrosoftAuth;
-import com.connorcode.autoreauth.gui.ErrorScreen;
 import com.mojang.authlib.exceptions.AuthenticationException;
 import com.mojang.blaze3d.platform.cursor.CursorTypes;
 import net.fabricmc.loader.api.FabricLoader;
@@ -91,7 +90,13 @@ public class Reauth {
             Misc.sendToast("AutoReauth", String.format("Authenticated as %s!", session.getName()));
         }).exceptionally(e -> {
             log.error("Error re-authenticating", e);
-            client.schedule(() -> client.setScreen(new ErrorScreen(parent, "Error re-authenticating", e.toString())));
+            Misc.sendToast("AutoReauth", "Reauthentication failed, retrying in 30 sec");
+            CompletableFuture.runAsync(() -> {
+                try {
+                    Thread.sleep(1000 * 30);
+                } catch (InterruptedException ignored) {}
+                sentToast = false;
+            });
             return null;
         });
     }
