@@ -10,24 +10,25 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
-      - name: Validate Gradle Wrapper
-        uses: gradle/actions/wrapper-validation@v5
+        uses: actions/checkout@v7
       - name: Setup JDK ${{ matrix.java }}
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v6
         with:
           distribution: 'adopt'
           java-version: ${{ matrix.java }}
+      - name: setup gradle
+        uses: gradle/actions/setup-gradle@v6
       - name: Chmod gradlew
         if: ${{ runner.os != 'Windows' }}
         run: chmod +x ./gradlew
       - name: Build
         run: ./gradlew build
       - name: Upload Artifacts
-        if: ${{ runner.os == 'Linux' && matrix.java == '17' }}
-        uses: actions/upload-artifact@v4
+        if: ${{ runner.os == 'Linux'}}
+        uses: actions/upload-artifact@v7
         with:
           name: Artifacts
           path: |
             build/libs/*.jar
             !build/libs/*-sources.jar
+          archive: false

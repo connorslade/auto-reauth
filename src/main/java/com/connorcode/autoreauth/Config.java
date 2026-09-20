@@ -26,6 +26,7 @@ public class Config {
     }
 
     public void addAccount(Account account) {
+        if (account.equals(defaultAccount)) defaultAccount = account;
         for (int i = 0; i < accounts.size(); i++) {
             if (accounts.get(i).uuid.equals(account.uuid)) {
                 accounts.set(i, account);
@@ -103,7 +104,7 @@ public class Config {
 
         public Account(CompoundTag nbt) {
             this(new MicrosoftAuth.AccessToken(nbt.getString("accessToken").orElseThrow(), nbt.getString("refreshToken")
-                    .orElseThrow()), Misc.parseUUID(nbt.getString("uuid").orElseThrow()), nbt.getString("username")
+                    .orElseThrow(), nbt.getLong("expiresAt").orElse(0L)), Misc.parseUUID(nbt.getString("uuid").orElseThrow()), nbt.getString("username")
                     .orElseThrow());
         }
 
@@ -111,6 +112,7 @@ public class Config {
             var tag = new CompoundTag();
             tag.putString("accessToken", accessToken.accessToken());
             tag.putString("refreshToken", accessToken.refreshToken());
+            tag.putLong("expiresAt", accessToken.expiresAt());
             tag.putString("uuid", uuid.toString());
             tag.putString("username", username);
             return tag;

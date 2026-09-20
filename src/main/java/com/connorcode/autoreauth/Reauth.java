@@ -2,7 +2,6 @@ package com.connorcode.autoreauth;
 
 import com.connorcode.autoreauth.auth.AuthUtils;
 import com.connorcode.autoreauth.auth.MicrosoftAuth;
-import com.connorcode.autoreauth.gui.ErrorScreen;
 import com.mojang.authlib.exceptions.AuthenticationException;
 import com.mojang.blaze3d.platform.cursor.CursorTypes;
 import net.fabricmc.loader.api.FabricLoader;
@@ -81,7 +80,13 @@ public class Reauth {
     }
 
     public static CompletableFuture<Void> attemptReauth(Screen parent, Config.Account account) {
-        return MicrosoftAuth.authenticate(account.accessToken()).thenAccept(session -> {
+        return MicrosoftAuth.authenticate(account.accessToken()).thenAccept(result -> {
+            var session = result.user();
+            client.execute(() -> {
+                config.addAccount(new Config.Account(result.token(), session));
+                config.save();
+            });
+
             try {
                 AuthUtils.setSession(session);
             } catch (AuthenticationException e) {
@@ -91,7 +96,19 @@ public class Reauth {
             Misc.sendToast("AutoReauth", String.format("Authenticated as %s!", session.getName()));
         }).exceptionally(e -> {
             log.error("Error re-authenticating", e);
-            client.execute(() -> client.gui.setScreen(new ErrorScreen(parent, "Error re-authenticating", e.toString())));
+            if (MicrosoftAuth.OAuthException.isInvalidGrant(e)) {
+                // Leave sentToast set so we don't keep retrying a dead refresh token
+                Misc.sendToast("AutoReauth", "Saved login expired, please re-add your account");
+                return null;
+            }
+
+            Misc.sendToast("AutoReauth", "Reauthentication failed, retrying in 30 sec");
+            CompletableFuture.runAsync(() -> {
+                try {
+                    Thread.sleep(1000 * 30);
+                } catch (InterruptedException ignored) {}
+                sentToast = false;
+            });
             return null;
         });
     }

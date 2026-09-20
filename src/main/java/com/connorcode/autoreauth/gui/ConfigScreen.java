@@ -2,6 +2,7 @@ package com.connorcode.autoreauth.gui;
 
 import com.connorcode.autoreauth.Config;
 import com.connorcode.autoreauth.Main;
+import com.connorcode.autoreauth.Misc;
 import com.connorcode.autoreauth.Reauth;
 import com.connorcode.autoreauth.auth.AuthUtils;
 import com.connorcode.autoreauth.auth.MicrosoftAuth;
@@ -30,6 +31,8 @@ public class ConfigScreen extends Screen {
     AccountListWidget accountList;
 
     Button switchButton;
+    Button reauthButton;
+    Button invalidateButton;
     Button deleteButton;
     Button makeDefaultButton;
 
@@ -55,6 +58,10 @@ public class ConfigScreen extends Screen {
             var selected = this.accountList.getSelected();
             if (selected != null) this.reauth = Reauth.attemptReauth(this, selected.account);
         }).width(74).build());
+        this.reauthButton = footerTop.addChild(Button.builder(Component.nullToEmpty("Reauth"), (button) -> {
+            var selected = this.accountList.getSelected();
+            if (selected != null) this.reauth = Reauth.attemptReauth(this, selected.account);
+        }).width(74).tooltip(Tooltip.create(Component.nullToEmpty("Reauthenticate the selected account now."))).build());
         this.deleteButton = footerTop.addChild(Button.builder(Component.nullToEmpty("Delete"), (button) -> {
             var selected = this.accountList.getSelected();
             if (selected != null) config.removeAccount(selected.account);
@@ -64,9 +71,9 @@ public class ConfigScreen extends Screen {
             if (selected != null) config.defaultAccount = selected.account;
         }).width(74).build());
         footerTop.addChild(Button.builder(Component.nullToEmpty("Add Account"), (button) -> MicrosoftAuth.getCode(semaphore)
-                .thenCompose(MicrosoftAuth::getAccessToken).thenCompose(access -> MicrosoftAuth.authenticate(access)
-                        .thenApply(session -> new java.util.AbstractMap.SimpleEntry<>(access, session))).thenAccept(pair -> {
-                    config.addAccount(new Config.Account(pair.getKey(), pair.getValue()));
+                .thenCompose(MicrosoftAuth::getAccessToken).thenCompose(access -> MicrosoftAuth.authenticate(access))
+                .thenAccept(result -> {
+                    config.addAccount(new Config.Account(result.token(), result.user()));
                     config.save();
 
                     authStatus = AuthUtils.getAuthStatus();
@@ -79,22 +86,26 @@ public class ConfigScreen extends Screen {
                     return null;
                 })).width(74).tooltip(Tooltip.create(Component.nullToEmpty("Warning: Tokens are stored in your home folder."))).build());
 
-
+        this.invalidateButton = footerBottom.addChild(Button.builder(Component.nullToEmpty("Invalidate"), (button) -> {
+            AuthUtils.invalidateSession();
+            Misc.sendToast("AutoReauth", "Session invalidated");
+        }).width(90).tooltip(Tooltip.create(Component.nullToEmpty("Clear the current session token, for testing reauthentication.")))
+                .build());
         footerBottom.addChild(callbackButton(clicked -> {
             config.debug ^= clicked;
             return "Debug: " + (config.debug ? "On" : "Off");
-        }).width(100).tooltip(Tooltip.create(Component.nullToEmpty("Warning: Debug mode will send authentication tokens in the log.")))
+        }).width(90).tooltip(Tooltip.create(Component.nullToEmpty("Warning: Debug mode will send authentication tokens in the log.")))
                 .build());
         footerBottom.addChild(callbackButton(clicked -> {
             config.auto ^= clicked;
             return "Reauth: " + (config.auto ? "Auto" : "Manual");
-        }).width(100)
+        }).width(90)
                 .tooltip(Tooltip.create(Component.nullToEmpty("Whether your session should be automatically re-authenticated on expiration.")))
                 .build());
         footerBottom.addChild(Button.builder(Component.nullToEmpty("Back"), (button) -> {
             config.save();
             Main.client.gui.setScreen(this.parent);
-        }).width(100).build());
+        }).width(90).build());
 
         this.accountList = this.layout.addToContents(new AccountListWidget(this.width, this.layout.getContentHeight(), this.layout.getHeaderHeight(), 32));
         this.layout.visitWidgets(this::addRenderableWidget);
@@ -118,8 +129,10 @@ public class ConfigScreen extends Screen {
         var selected = this.accountList.getSelected();
         var uuid = Optional.ofNullable(selected).map(x -> x.account.uuid());
 
-        this.switchButton.active = (reauth == null || reauth.isDone()) && uuid.isPresent() && !Main.client.user.getProfileId()
-                .equals(uuid.get());
+        var reauthIdle = reauth == null || reauth.isDone();
+        this.switchButton.active = reauthIdle && uuid.isPresent() && !Main.client.user.getProfileId().equals(uuid.get());
+        this.reauthButton.active = reauthIdle && uuid.isPresent();
+        this.invalidateButton.active = reauthIdle;
         this.makeDefaultButton.active = uuid.isPresent() && !config.isDefault(selected.account);
         this.deleteButton.active = uuid.isPresent();
 

@@ -46,6 +46,13 @@ public class MicrosoftAuth {
         return json.get(key);
     }
 
+    static void checkOAuthError(JsonObject json, String context) throws OAuthException {
+        if (!json.has("error")) return;
+        var error = json.get("error").getAsString();
+        var description = json.has("error_description") ? json.get("error_description").getAsString() : "";
+        throw new OAuthException(error, String.format("OAuth error '%s' in %s: %s", error, context, description));
+    }
+
     public static CompletableFuture<String> getCode(Semaphore semaphore) {
         return CompletableFuture.supplyAsync(() -> {
             var state = Misc.randomString(10);
@@ -125,11 +132,27 @@ public class MicrosoftAuth {
                 .thenCompose(MicrosoftAuth::createSession);
     }
 
-    public static CompletableFuture<User> authenticate(AccessToken token) {
-        // TODO: Use access token if its still valid
-        return refreshAccessToken(token.refreshToken).thenCompose(MicrosoftAuth::authenticateXbox)
-                .thenCompose(MicrosoftAuth::obtainXstsToken).thenCompose(MicrosoftAuth::authenticateMinecraft)
-                .thenCompose(MicrosoftAuth::createSession);
+    // Microsoft rotates refresh tokens, so callers must persist the returned token or the stored one will eventually expire
+    public static CompletableFuture<RefreshedSession> authenticate(AccessToken token) {
+        // Xbox auth is the only step that consumes the Microsoft access token, so only it needs the refresh fallback
+        var xbox = token.isExpired() ? refreshAndAuthenticateXbox(token) : authenticateXbox(token)
+                .thenApply(auth -> new XboxSession(token, auth)).exceptionallyCompose(e -> {
+                    log.warn("Stored access token was rejected, refreshing: {}", e.toString());
+                    return refreshAndAuthenticateXbox(token);
+                });
+
+        return xbox.thenCompose(session -> obtainXstsToken(session.xbox)
+                .thenCompose(MicrosoftAuth::authenticateMinecraft).thenCompose(MicrosoftAuth::createSession)
+                .thenApply(user -> new RefreshedSession(session.token, user)));
+    }
+
+    static CompletableFuture<XboxSession> refreshAndAuthenticateXbox(AccessToken token) {
+        return refreshAccessToken(token.refreshToken).thenCompose(access -> authenticateXbox(access)
+                .thenApply(auth -> new XboxSession(access, auth)));
+    }
+
+    static long parseExpiresAt(JsonObject json) {
+        return json.has("expires_in") ? System.currentTimeMillis() + json.get("expires_in").getAsLong() * 1000 : 0;
     }
 
     public static CompletableFuture<AccessToken> getAccessToken(String code) {
@@ -147,9 +170,10 @@ public class MicrosoftAuth {
                 var json = GsonHelper.parse(str);
 
                 var ctx = "access token response from code";
+                checkOAuthError(json, ctx);
                 var access_token = getIfPresent(json, "access_token", ctx).getAsString();
                 var refresh_token = getIfPresent(json, "refresh_token", ctx).getAsString();
-                return new AccessToken(access_token, refresh_token);
+                return new AccessToken(access_token, refresh_token, parseExpiresAt(json));
             } catch (IOException | InterruptedException e) {
                 throw new AuthException("Failed to get access token from code", e);
             }
@@ -170,9 +194,10 @@ public class MicrosoftAuth {
                 var json = GsonHelper.parse(str);
 
                 var ctx = "access token response from refresh token";
+                checkOAuthError(json, ctx);
                 var access_token = getIfPresent(json, "access_token", ctx).getAsString();
                 var refresh_token = getIfPresent(json, "refresh_token", ctx).getAsString();
-                return new AccessToken(access_token, refresh_token);
+                return new AccessToken(access_token, refresh_token, parseExpiresAt(json));
             } catch (IOException | InterruptedException e) {
                 throw new AuthException("Failed to get access token from refresh token", e);
             }
@@ -285,7 +310,23 @@ public class MicrosoftAuth {
         });
     }
 
-    static class AuthException extends CancellationException {
+    public static class OAuthException extends AuthException {
+        public final String error;
+
+        public OAuthException(String error, String message) {
+            super(message, null);
+            this.error = error;
+        }
+
+        // The refresh token is expired or revoked, retrying won't help
+        public static boolean isInvalidGrant(Throwable e) {
+            for (var t = e; t != null; t = t.getCause())
+                if (t instanceof OAuthException o && o.error.equals("invalid_grant")) return true;
+            return false;
+        }
+    }
+
+    public static class AuthException extends CancellationException {
         @Nullable Throwable cause;
 
         public AuthException(String message, @Nullable Throwable cause) {
@@ -299,7 +340,18 @@ public class MicrosoftAuth {
         }
     }
 
-    public record AccessToken(String accessToken, String refreshToken) {
+    public record AccessToken(String accessToken, String refreshToken, long expiresAt) {
+        static final long EXPIRY_MARGIN_MS = 1000 * 60 * 5;
+
+        public boolean isExpired() {
+            return System.currentTimeMillis() + EXPIRY_MARGIN_MS >= expiresAt;
+        }
+    }
+
+    public record RefreshedSession(AccessToken token, User user) {
+    }
+
+    record XboxSession(AccessToken token, XboxAuth xbox) {
     }
 
     public record XboxAuth(String xblToken, String userHash) {
