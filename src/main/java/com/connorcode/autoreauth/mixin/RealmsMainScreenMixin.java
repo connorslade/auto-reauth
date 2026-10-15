@@ -48,7 +48,7 @@ public class RealmsMainScreenMixin extends Screen {
         tickAuthStatus(this);
     }
 
-    @Inject(at = @At("HEAD"), method = "lambda$init$9(Lcom/mojang/realmsclient/RealmsAvailability$Result;)V", cancellable = true)
+    @Inject(at = @At("HEAD"), method = "Lcom/mojang/realmsclient/RealmsMainScreen;lambda$init$5(Lcom/mojang/realmsclient/RealmsAvailability$Result;)V", cancellable = true)
     void onRealmsAvailabilityInfo(RealmsAvailability.Result info, CallbackInfo ci) {
         if (!config.auto || info.type() != RealmsAvailability.Type.AUTHENTICATION_ERROR) return;
 

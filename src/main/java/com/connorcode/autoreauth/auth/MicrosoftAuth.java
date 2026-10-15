@@ -5,10 +5,10 @@ import com.connorcode.autoreauth.gui.WaitingForLogin;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.mojang.blaze3d.Blaze3D;
 import com.sun.net.httpserver.HttpServer;
 import net.minecraft.client.User;
 import net.minecraft.util.GsonHelper;
-import net.minecraft.util.Util;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
@@ -97,7 +97,7 @@ public class MicrosoftAuth {
             var uri = builder.build();
 
             server.start();
-            Util.getPlatform().openUri(uri);
+            Blaze3D.openUri(uri);
 
             client.execute(() -> client.gui.setScreen(new WaitingForLogin(client.gui.screen(), semaphore, uri)));
 

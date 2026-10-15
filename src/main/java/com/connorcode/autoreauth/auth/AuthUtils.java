@@ -1,8 +1,8 @@
 package com.connorcode.autoreauth.auth;
 
 import com.mojang.authlib.exceptions.AuthenticationException;
-import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
-import com.mojang.authlib.yggdrasil.YggdrasilMinecraftSessionService;
+import com.mojang.authlib.minecraft.UserApiService;
+import com.mojang.authlib.services.MinecraftServicesDiscoveryService;
 import com.mojang.realmsclient.RealmsAvailability;
 import com.mojang.realmsclient.client.RealmsClient;
 import com.mojang.realmsclient.gui.RealmsDataFetcher;
@@ -33,7 +33,7 @@ public class AuthUtils {
             var id = UUID.randomUUID().toString();
 
             // Thank you https://github.com/axieum/authme
-            var sessionService = (YggdrasilMinecraftSessionService) client.services().sessionService();
+            var sessionService = client.services().sessionService();
             try {
                 sessionService.joinServer(client.getUser().getProfileId(), token, id);
                 var authStatus = sessionService.hasJoinedServer(session.getName(), id, null) != null ? AuthStatus.Online : AuthStatus.Offline;
@@ -50,9 +50,11 @@ public class AuthUtils {
     public static void setSession(User session) throws AuthenticationException {
         log.info("Overwriting session with {} ({})", session.getName(), session.getProfileId());
         client.user = session;
-        YggdrasilAuthenticationService yggdrasilAuthenticationService = client.isOfflineDeveloperMode() ? YggdrasilAuthenticationService.createOffline(client.getProxy()) : new YggdrasilAuthenticationService(client.getProxy());
-        client.userApiService = yggdrasilAuthenticationService.createUserApiService(session.getAccessToken());
-        client.playerSocialManager = new PlayerSocialManager(client, client.userApiService, yggdrasilAuthenticationService.createFriendsService(session.getAccessToken()), client.remoteFriendListUpdateHandler);
+        boolean isDeveloperMode = client.isOfflineDeveloperMode();
+        String accessToken = session.getAccessToken();
+        MinecraftServicesDiscoveryService discoveryService = MinecraftServicesDiscoveryService.create(client.getProxy(), !isDeveloperMode);
+        client.userApiService = isDeveloperMode ? UserApiService.OFFLINE : discoveryService.createUserApiService(accessToken);
+        client.playerSocialManager = new PlayerSocialManager(client, client.userApiService, discoveryService.createFriendsService(accessToken), client.remoteFriendListUpdateHandler);
         client.profileKeyPairManager = ProfileKeyPairManager.create(client.userApiService, session, client.gameDirectory.toPath());
         client.reportingContext = ReportingContext.create(client.reportingContext.environment, client.userApiService);
         RealmsAvailability.future = null;
