@@ -5,7 +5,6 @@ jobs:
   build:
     strategy:
       matrix:
-        java: [ 25 ]
         os: [ ubuntu-latest, windows-latest ]
     runs-on: ${{ matrix.os }}
     steps:
@@ -13,17 +12,17 @@ jobs:
         uses: actions/checkout@v7
       - name: Validate Gradle Wrapper
         uses: gradle/actions/wrapper-validation@v6
-      - name: Setup JDK ${{ matrix.java }}
+      - name: Setup JDK
         uses: actions/setup-java@v6
         with:
           distribution: 'temurin'
-          java-version: ${{ matrix.java }}
+          java-version: 25
       - name: Chmod gradlew
         if: ${{ runner.os != 'Windows' }}
         run: chmod +x ./gradlew
       - name: Build
         run: ./gradlew build
-      - name: Upload Mod JAR
+      - name: Upload Artifact
         if: ${{ runner.os == 'Linux' }}
         uses: actions/upload-artifact@v7
         with:
