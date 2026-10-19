@@ -23,11 +23,19 @@ jobs:
         run: chmod +x ./gradlew
       - name: Build
         run: ./gradlew build
-      - name: Upload Artifacts
+      - name: Upload Mod JAR
         if: ${{ runner.os == 'Linux' }}
         uses: actions/upload-artifact@v7
         with:
-          name: Artifacts
+          archive: false
+          if-no-files-found: error
           path: |
             build/libs/*.jar
             !build/libs/*-sources.jar
+      - name: Upload Sources JAR
+        if: ${{ runner.os == 'Linux' }}
+        uses: actions/upload-artifact@v7
+        with:
+          archive: false
+          if-no-files-found: error
+          path: build/libs/*-sources.jar
