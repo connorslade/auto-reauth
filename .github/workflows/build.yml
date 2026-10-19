@@ -32,10 +32,3 @@ jobs:
           path: |
             build/libs/*.jar
             !build/libs/*-sources.jar
-      - name: Upload Sources JAR
-        if: ${{ runner.os == 'Linux' }}
-        uses: actions/upload-artifact@v7
-        with:
-          archive: false
-          if-no-files-found: error
-          path: build/libs/*-sources.jar
